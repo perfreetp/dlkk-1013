@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, Image, ScrollView, Switch, Button } from '@tarojs/components';
+import { View, Text, Image, ScrollView, Switch, Button, Textarea } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useAppStore } from '@/store/useAppStore';
+import { formatDateTime } from '@/utils';
 
 function SettingsPage() {
   const couple = useAppStore((state) => state.couple);
@@ -11,6 +12,11 @@ function SettingsPage() {
   const updateSettings = useAppStore((state) => state.updateSettings);
   const diaries = useAppStore((state) => state.diaries);
   const photos = useAppStore((state) => state.photos);
+  const wishes = useAppStore((state) => state.wishes);
+  const anniversaries = useAppStore((state) => state.anniversaries);
+  const letters = useAppStore((state) => state.letters);
+  const moodRecords = useAppStore((state) => state.moodRecords);
+  const exportBackupData = useAppStore((state) => state.exportBackupData);
 
   useDidShow(() => {
     console.log('[SettingsPage] Page did show');
@@ -18,6 +24,15 @@ function SettingsPage() {
 
   const [passwordEnabled, setPasswordEnabled] = useState(settings.isLocked);
   const [backupEnabled, setBackupEnabled] = useState(true);
+  const [showBackupModal, setShowBackupModal] = useState(false);
+  const [backupInfo, setBackupInfo] = useState<{
+    key: string;
+    time: string;
+    size: string;
+    summary: Record<string, number>;
+    jsonStr: string;
+  } | null>(null);
+  const [showJsonPreview, setShowJsonPreview] = useState(false);
 
   const handleTogglePassword = () => {
     if (!passwordEnabled) {
@@ -53,25 +68,95 @@ function SettingsPage() {
   };
 
   const handleExport = () => {
-    Taro.showLoading({ title: '正在导出...' });
+    Taro.showLoading({ title: '正在生成备份...' });
     setTimeout(() => {
-      Taro.hideLoading();
-      Taro.showModal({
-        title: '导出成功 ✅',
-        content: `已导出：\n• ${diaries.length}篇日记\n• ${photos.length}张照片\n• ${couple.loveStory ? '1段恋爱故事' : ''}\n\n文件已保存至本地。`,
-        showCancel: false,
-        confirmText: '好的'
-      });
-    }, 1500);
+      try {
+        const backupData = exportBackupData();
+        const jsonStr = JSON.stringify(backupData, null, 2);
+        const bytes = new Blob([jsonStr]).size;
+        const sizeStr =
+          bytes > 1024 * 1024
+            ? `${(bytes / 1024 / 1024).toFixed(2)} MB`
+            : `${(bytes / 1024).toFixed(1)} KB`;
+        const timeKey = new Date().toISOString();
+        const storageKey = `couple_backup_${timeKey.replace(/[:.]/g, '-')}`;
+        Taro.setStorageSync(storageKey, jsonStr);
+
+        const summary = {
+          diaries: backupData.diaries.length,
+          photos: backupData.photos.length,
+          anniversaries: backupData.anniversaries.length,
+          wishes: backupData.wishes.length,
+          letters: backupData.letters.length,
+          moods: backupData.moodRecords.length,
+          photoGroups: backupData.photoGroups.length
+        };
+
+        updateSettings({ lastBackupAt: timeKey });
+
+        setBackupInfo({
+          key: storageKey,
+          time: formatDateTime(timeKey),
+          size: sizeStr,
+          summary,
+          jsonStr
+        });
+        setShowBackupModal(true);
+        Taro.hideLoading();
+      } catch (e) {
+        Taro.hideLoading();
+        Taro.showToast({ title: '导出失败', icon: 'error' });
+        console.error(e);
+      }
+    }, 800);
   };
 
   const handleBackup = () => {
     Taro.showLoading({ title: '正在备份...' });
     setTimeout(() => {
-      Taro.hideLoading();
-      updateSettings({ lastBackupAt: new Date().toISOString() });
-      Taro.showToast({ title: '备份完成 ☁️', icon: 'success' });
-    }, 2000);
+      try {
+        const backupData = exportBackupData();
+        const jsonStr = JSON.stringify(backupData);
+        const storageKey = `couple_backup_auto_${new Date().toISOString().replace(/[:.]/g, '-')}`;
+        Taro.setStorageSync(storageKey, jsonStr);
+        Taro.hideLoading();
+        updateSettings({ lastBackupAt: new Date().toISOString() });
+        Taro.showToast({ title: '备份完成 ☁️', icon: 'success' });
+      } catch (e) {
+        Taro.hideLoading();
+        Taro.showToast({ title: '备份失败', icon: 'error' });
+      }
+    }, 1200);
+  };
+
+  const handleCopyJson = () => {
+    if (!backupInfo) return;
+    Taro.setClipboardData({
+      data: backupInfo.jsonStr,
+      success: () => Taro.showToast({ title: '已复制到剪贴板', icon: 'success' })
+    });
+  };
+
+  const handleDownload = () => {
+    if (!backupInfo) return;
+    try {
+      if (typeof document !== 'undefined') {
+        const blob = new Blob([backupInfo.jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `甜蜜空间备份_${backupInfo.time.replace(/[-: ]/g, '')}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        Taro.showToast({ title: '下载已开始', icon: 'success' });
+      } else {
+        handleCopyJson();
+      }
+    } catch (e) {
+      handleCopyJson();
+    }
   };
 
   const handleEditProfile = () => {
@@ -260,6 +345,263 @@ function SettingsPage() {
         {'\n'}
         Made with 💝 for lovers
       </View>
+
+      {showBackupModal && backupInfo && (
+        <View
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '32rpx'
+          }}
+          onClick={() => !showJsonPreview && setShowBackupModal(false)}
+        >
+          <View
+            style={{
+              width: '100%',
+              maxHeight: '85vh',
+              background: '#fff',
+              borderRadius: '24rpx',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <View
+              style={{
+                padding: '32rpx',
+                background: 'linear-gradient(135deg, #FF6B9D 0%, #FF85B1 100%)',
+                color: '#fff'
+              }}
+            >
+              <Text
+                style={{
+                  display: 'block',
+                  fontSize: '36rpx',
+                  fontWeight: 'bold',
+                  marginBottom: '8rpx'
+                }}
+              >
+                ✅ 备份生成成功
+              </Text>
+              <Text style={{ fontSize: '24rpx', opacity: 0.9 }}>{backupInfo.time}</Text>
+            </View>
+
+            {!showJsonPreview ? (
+              <View style={{ padding: '32rpx', flexShrink: 0 }}>
+                <View
+                  style={{
+                    background: '#F7F8FA',
+                    borderRadius: '16rpx',
+                    padding: '24rpx',
+                    marginBottom: '24rpx'
+                  }}
+                >
+                  <Text
+                    style={{
+                      display: 'block',
+                      fontSize: '24rpx',
+                      color: '#86909C',
+                      marginBottom: '16rpx'
+                    }}
+                  >
+                    📦 备份摘要
+                  </Text>
+                  <View
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: '12rpx'
+                    }}
+                  >
+                    <View>
+                      <Text style={{ fontSize: '28rpx', fontWeight: 'bold', color: '#FF6B9D' }}>
+                        {backupInfo.summary.diaries}
+                      </Text>
+                      <Text style={{ fontSize: '22rpx', color: '#86909C' }}> 篇日记</Text>
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: '28rpx', fontWeight: 'bold', color: '#FF6B9D' }}>
+                        {backupInfo.summary.photos}
+                      </Text>
+                      <Text style={{ fontSize: '22rpx', color: '#86909C' }}> 张照片</Text>
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: '28rpx', fontWeight: 'bold', color: '#FF6B9D' }}>
+                        {backupInfo.summary.anniversaries}
+                      </Text>
+                      <Text style={{ fontSize: '22rpx', color: '#86909C' }}> 个纪念日</Text>
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: '28rpx', fontWeight: 'bold', color: '#FF6B9D' }}>
+                        {backupInfo.summary.wishes}
+                      </Text>
+                      <Text style={{ fontSize: '22rpx', color: '#86909C' }}> 个愿望</Text>
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: '28rpx', fontWeight: 'bold', color: '#FF6B9D' }}>
+                        {backupInfo.summary.letters}
+                      </Text>
+                      <Text style={{ fontSize: '22rpx', color: '#86909C' }}> 封信件</Text>
+                    </View>
+                    <View>
+                      <Text style={{ fontSize: '28rpx', fontWeight: 'bold', color: '#FF6B9D' }}>
+                        {backupInfo.summary.moods}
+                      </Text>
+                      <Text style={{ fontSize: '22rpx', color: '#86909C' }}> 条心情</Text>
+                    </View>
+                  </View>
+                </View>
+
+                <View
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '16rpx 20rpx',
+                    background: '#FFF7FA',
+                    borderRadius: '12rpx',
+                    marginBottom: '24rpx'
+                  }}
+                >
+                  <Text style={{ fontSize: '24rpx', color: '#86909C' }}>备份大小</Text>
+                  <Text style={{ fontSize: '26rpx', fontWeight: 'bold', color: '#FF6B9D' }}>
+                    {backupInfo.size}
+                  </Text>
+                </View>
+                <View
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '16rpx 20rpx',
+                    background: '#FFF7FA',
+                    borderRadius: '12rpx',
+                    marginBottom: '32rpx'
+                  }}
+                >
+                  <Text style={{ fontSize: '24rpx', color: '#86909C' }}>存储键</Text>
+                  <Text style={{ fontSize: '22rpx', color: '#4E5969', maxWidth: '60%' }}>
+                    {backupInfo.key.slice(0, 24)}...
+                  </Text>
+                </View>
+
+                <View style={{ display: 'flex', flexDirection: 'column', gap: '16rpx' }}>
+                  <Button
+                    style={{
+                      width: '100%',
+                      height: '80rpx',
+                      lineHeight: '80rpx',
+                      background: 'linear-gradient(135deg, #FF6B9D 0%, #FF85B1 100%)',
+                      color: '#fff',
+                      borderRadius: '14rpx',
+                      fontSize: '28rpx',
+                      fontWeight: 'bold',
+                      border: 'none'
+                    }}
+                    onClick={handleDownload}
+                  >
+                    ⬇️ 下载备份文件
+                  </Button>
+                  <Button
+                    style={{
+                      width: '100%',
+                      height: '80rpx',
+                      lineHeight: '80rpx',
+                      background: '#F7F8FA',
+                      color: '#4E5969',
+                      borderRadius: '14rpx',
+                      fontSize: '28rpx',
+                      border: 'none'
+                    }}
+                    onClick={handleCopyJson}
+                  >
+                    📋 复制到剪贴板
+                  </Button>
+                  <Button
+                    style={{
+                      width: '100%',
+                      height: '80rpx',
+                      lineHeight: '80rpx',
+                      background: '#FFF7FA',
+                      color: '#FF6B9D',
+                      borderRadius: '14rpx',
+                      fontSize: '28rpx',
+                      border: 'none'
+                    }}
+                    onClick={() => setShowJsonPreview(true)}
+                  >
+                    👁️ 查看备份内容
+                  </Button>
+                  <Button
+                    style={{
+                      width: '100%',
+                      height: '80rpx',
+                      lineHeight: '80rpx',
+                      background: 'transparent',
+                      color: '#86909C',
+                      borderRadius: '14rpx',
+                      fontSize: '28rpx',
+                      border: 'none'
+                    }}
+                    onClick={() => setShowBackupModal(false)}
+                  >
+                    关闭
+                  </Button>
+                </View>
+              </View>
+            ) : (
+              <View style={{ display: 'flex', flexDirection: 'column', height: '60vh' }}>
+                <View
+                  style={{
+                    padding: '20rpx 24rpx',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    borderBottom: '1rpx solid #F2F3F5'
+                  }}
+                >
+                  <Text style={{ fontSize: '26rpx', fontWeight: 'bold', color: '#4E5969' }}>
+                    📄 backup.json 预览
+                  </Text>
+                  <Text
+                    style={{ fontSize: '24rpx', color: '#FF6B9D' }}
+                    onClick={() => setShowJsonPreview(false)}
+                  >
+                    返回
+                  </Text>
+                </View>
+                <ScrollView scrollY style={{ flex: 1, padding: '20rpx' }}>
+                  <Textarea
+                    value={backupInfo.jsonStr}
+                    style={{
+                      width: '100%',
+                      minHeight: '800rpx',
+                      fontSize: '22rpx',
+                      fontFamily: 'monospace',
+                      lineHeight: '32rpx',
+                      color: '#1D2129',
+                      background: '#FAFBFC',
+                      borderRadius: '12rpx',
+                      padding: '20rpx'
+                    }}
+                    autoHeight
+                    disabled
+                  />
+                </ScrollView>
+              </View>
+            )}
+          </View>
+        </View>
+      )}
     </ScrollView>
   );
 }

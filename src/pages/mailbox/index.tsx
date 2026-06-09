@@ -15,9 +15,11 @@ function MailboxPage() {
   const letters = useAppStore((state) => state.letters);
   const currentUser = useAppStore((state) => state.currentUser);
   const markLetterRead = useAppStore((state) => state.markLetterRead);
+  const processAllScheduledLetters = useAppStore((state) => state.processAllScheduledLetters);
 
   useDidShow(() => {
     console.log('[MailboxPage] Page did show');
+    processAllScheduledLetters();
   });
 
   const [filterType, setFilterType] = useState<FilterType>('inbox');
@@ -124,9 +126,39 @@ function MailboxPage() {
             <View className={styles.letterStamp}>💮</View>
             <Text className={styles.letterFrom}>来自 {selectedLetter.fromUserName}</Text>
             <Text className={styles.letterTitle}>{selectedLetter.title}</Text>
+            {!selectedLetter.isSent && selectedLetter.scheduledSendTime && (
+              <View
+                style={{
+                  background: 'linear-gradient(135deg, #FFF0F5 0%, #FFE4EE 100%)',
+                  borderRadius: '16rpx',
+                  padding: '20rpx 24rpx',
+                  marginBottom: '24rpx',
+                  border: '2rpx dashed #FF85B1'
+                }}
+              >
+                <Text
+                  style={{
+                    display: 'block',
+                    fontSize: '24rpx',
+                    color: '#FF6B9D',
+                    fontWeight: 'bold',
+                    marginBottom: '8rpx'
+                  }}
+                >
+                  🕐 定时信件
+                </Text>
+                <Text style={{ fontSize: '26rpx', color: '#F53F3F' }}>
+                  预计发送时间：{formatDateTime(selectedLetter.scheduledSendTime)}
+                </Text>
+              </View>
+            )}
             <View className={styles.letterContent}>{selectedLetter.content}</View>
             <View className={styles.letterFooter}>
-              <Text className={styles.letterDate}>{formatDateTime(selectedLetter.createdAt)}</Text>
+              <Text className={styles.letterDate}>
+                {!selectedLetter.isSent
+                  ? `撰写于 ${formatDateTime(selectedLetter.createdAt)}`
+                  : formatDateTime(selectedLetter.createdAt)}
+              </Text>
               <Text className={styles.letterSign}>—— {selectedLetter.fromUserName}</Text>
             </View>
             <Button className={styles.closeBtn} onClick={() => setSelectedLetter(null)}>

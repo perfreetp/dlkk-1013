@@ -12,6 +12,7 @@ import type { Diary } from '@/types';
 function DiaryPage() {
   const diaries = useAppStore((state) => state.diaries);
   const currentUser = useAppStore((state) => state.currentUser);
+  const settings = useAppStore((state) => state.settings);
 
   useDidShow(() => {
     console.log('[DiaryPage] Page did show');
@@ -58,7 +59,8 @@ function DiaryPage() {
   };
 
   const handleUnlock = () => {
-    if (lockInput === '1234' || lockInput === '') {
+    const correctPwd = settings.accessPassword || '1234';
+    if (lockInput && lockInput === correctPwd) {
       setShowLockModal(false);
       setLockInput('');
       if (pendingDiary) {

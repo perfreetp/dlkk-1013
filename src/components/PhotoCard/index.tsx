@@ -21,17 +21,17 @@ export default function PhotoCard({ photo, onClick, onFavorite, size = 'md' }: P
         className={styles.image}
         mode="aspectFill"
       />
-      {photo.isFavorite && (
-        <View
-          className={styles.favorite}
-          onClick={(e) => {
-            e.stopPropagation();
-            onFavorite?.();
-          }}
-        >
-          <Text className={styles.favoriteIcon}>❤️</Text>
-        </View>
-      )}
+      <View
+        className={classnames(styles.favorite, photo.isFavorite && styles.isFavorited)}
+        onClick={(e) => {
+          e.stopPropagation();
+          onFavorite?.();
+        }}
+      >
+        <Text className={styles.favoriteIcon}>
+          {photo.isFavorite ? '❤️' : '🤍'}
+        </Text>
+      </View>
     </View>
   );
 }

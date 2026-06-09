@@ -30,14 +30,26 @@
   position: absolute;
   top: 12rpx;
   right: 12rpx;
-  width: 48rpx;
-  height: 48rpx;
+  width: 56rpx;
+  height: 56rpx;
   display: flex;
   align-items: center;
   justify-content: center;
+  border-radius: $radius-round;
+  background: rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(6rpx);
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(1.2);
+  }
+
+  &.isFavorited {
+    background: rgba(255, 255, 255, 0.6);
+  }
 }
 
 .favoriteIcon {
   font-size: 32rpx;
-  filter: drop-shadow(0 2rpx 4rpx rgba(0, 0, 0, 0.3));
+  filter: drop-shadow(0 2rpx 4rpx rgba(0, 0, 0, 0.2));
 }

@@ -19,9 +19,11 @@ function HomePage() {
   const moodRecords = useAppStore((state) => state.moodRecords);
   const diaries = useAppStore((state) => state.diaries);
   const addMoodRecord = useAppStore((state) => state.addMoodRecord);
+  const processAllScheduledLetters = useAppStore((state) => state.processAllScheduledLetters);
 
   useDidShow(() => {
     console.log('[HomePage] Page did show');
+    processAllScheduledLetters();
   });
 
   const daysTogether = useMemo(() => calculateDaysTogether(couple.anniversary), [couple.anniversary]);
