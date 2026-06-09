@@ -83,7 +83,7 @@ function DiaryEditPage() {
     };
 
     if (isEditMode && editingDiary) {
-      updateDiary(editingDiary.id, diaryData);
+      updateDiary(editingDiary.id, diaryData, currentUser.id, currentUser.name);
       Taro.showToast({ title: '日记已更新 💝', icon: 'success' });
     } else {
       const newDiary: Diary = {

@@ -24,6 +24,17 @@ export interface MoodRecord {
   note?: string;
 }
 
+export type DiaryFieldChanged = 'title' | 'content' | 'isPrivate' | 'tags' | 'images' | 'coEditors';
+
+export interface DiaryEditRecord {
+  id: string;
+  editorId: string;
+  editorName: string;
+  editedAt: string;
+  fieldsChanged: DiaryFieldChanged[];
+  summary: string;
+}
+
 export interface Diary {
   id: string;
   title: string;
@@ -36,6 +47,7 @@ export interface Diary {
   updatedAt: string;
   images?: string[];
   coEditors?: string[];
+  editHistory?: DiaryEditRecord[];
 }
 
 export interface Photo {

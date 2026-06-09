@@ -13,6 +13,7 @@ function DiaryPage() {
   const diaries = useAppStore((state) => state.diaries);
   const currentUser = useAppStore((state) => state.currentUser);
   const settings = useAppStore((state) => state.settings);
+  const unlockPrivateDiary = useAppStore((state) => state.unlockPrivateDiary);
 
   useDidShow(() => {
     console.log('[DiaryPage] Page did show');
@@ -64,6 +65,7 @@ function DiaryPage() {
       setShowLockModal(false);
       setLockInput('');
       if (pendingDiary) {
+        unlockPrivateDiary(pendingDiary.id);
         Taro.navigateTo({
           url: `/pages/diary-detail/index?id=${pendingDiary.id}`
         });

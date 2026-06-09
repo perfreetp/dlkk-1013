@@ -1,7 +1,8 @@
 import { create } from 'zustand';
 import Taro from '@tarojs/taro';
 import type {
-  Couple, Diary, Photo, PhotoGroup, Anniversary, Wish, Letter, MoodRecord, Settings, User
+  Couple, Diary, Photo, PhotoGroup, Anniversary, Wish, Letter, MoodRecord, Settings, User,
+  DiaryEditRecord, DiaryFieldChanged
 } from '@/types';
 import {
   mockCouple, mockDiaries, mockPhotos, mockPhotoGroups,
@@ -10,7 +11,7 @@ import {
 
 const STORAGE_KEY = 'couple_space_data_v1';
 
-interface PersistedData {
+export interface PersistedData {
   currentUser: User;
   couple: Couple;
   diaries: Diary[];
@@ -77,6 +78,30 @@ const processScheduledLetters = (letters: Letter[]): Letter[] => {
   return changed ? updated : letters;
 };
 
+const nowString = (): string => new Date().toISOString().replace('T', ' ').slice(0, 19);
+
+const genId = (): string => `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+const computeDiaryDiff = (oldD: Diary, newD: Partial<Diary>): DiaryFieldChanged[] => {
+  const fields: DiaryFieldChanged[] = [];
+  if (newD.title !== undefined && newD.title !== oldD.title) fields.push('title');
+  if (newD.content !== undefined && newD.content !== oldD.content) fields.push('content');
+  if (newD.isPrivate !== undefined && newD.isPrivate !== oldD.isPrivate) fields.push('isPrivate');
+  if (newD.tags && JSON.stringify(newD.tags) !== JSON.stringify(oldD.tags)) fields.push('tags');
+  if (newD.images && JSON.stringify(newD.images) !== JSON.stringify(oldD.images || [])) fields.push('images');
+  if (newD.coEditors && JSON.stringify(newD.coEditors) !== JSON.stringify(oldD.coEditors || [])) fields.push('coEditors');
+  return fields;
+};
+
+const fieldLabel: Record<DiaryFieldChanged, string> = {
+  title: '标题',
+  content: '正文',
+  isPrivate: '私密状态',
+  tags: '标签',
+  images: '图片',
+  coEditors: '共同编辑'
+};
+
 interface AppState {
   currentUser: User;
   couple: Couple;
@@ -91,13 +116,22 @@ interface AppState {
   selectedTab: string;
   isStorageLoaded: boolean;
   hasVerifiedAccess: boolean;
+  unlockedPrivateDiaryIds: string[];
 
   setCurrentUser: (user: User) => void;
+  switchUser: (userId: string) => void;
   addDiary: (diary: Diary) => void;
-  updateDiary: (id: string, diary: Partial<Diary>) => void;
+  updateDiary: (id: string, diary: Partial<Diary>, editorId?: string, editorName?: string) => void;
   deleteDiary: (id: string) => void;
+  unlockPrivateDiary: (id: string) => void;
+  isPrivateDiaryUnlocked: (id: string) => boolean;
+
   addPhoto: (photo: Photo) => void;
+  addPhotos: (photos: Photo[]) => void;
   togglePhotoFavorite: (id: string) => void;
+  updatePhotoGroup: (id: string, patch: Partial<PhotoGroup>) => void;
+  refreshPhotoGroupStats: (groupId?: string) => void;
+
   addAnniversary: (anniv: Anniversary) => void;
   updateAnniversary: (id: string, anniv: Partial<Anniversary>) => void;
   deleteAnniversary: (id: string) => void;
@@ -114,6 +148,7 @@ interface AppState {
   setHasVerifiedAccess: (val: boolean) => void;
   forcePersist: () => void;
   exportBackupData: () => PersistedData;
+  restoreFromBackup: (data: PersistedData) => void;
 }
 
 const persisted = loadFromStorage();
@@ -137,6 +172,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   selectedTab: 'home',
   isStorageLoaded: true,
   hasVerifiedAccess: false,
+  unlockedPrivateDiaryIds: [],
 
   forcePersist: () => {
     const s = get();
@@ -159,20 +195,44 @@ export const useAppStore = create<AppState>((set, get) => ({
     get().forcePersist();
   },
 
+  switchUser: (userId) => {
+    const { couple, currentUser } = get();
+    let target: User = currentUser;
+    if (couple.user1.id === userId) target = couple.user1;
+    else if (couple.user2.id === userId) target = couple.user2;
+    set({ currentUser: target });
+    get().forcePersist();
+  },
+
   addDiary: (diary) => {
     set((state) => ({ diaries: [diary, ...state.diaries] }));
     get().forcePersist();
   },
 
-  updateDiary: (id, diary) => {
-    set((state) => ({
-      diaries: state.diaries.map((d) =>
+  updateDiary: (id, patch, editorId, editorName) => {
+    const state = get();
+    const original = state.diaries.find((d) => d.id === id);
+    if (!original) return;
+    const fields = computeDiaryDiff(original, patch);
+    let newEditHistory: DiaryEditRecord[] = original.editHistory ? [...original.editHistory] : [];
+    if (fields.length > 0 && editorId && editorName) {
+      const summary = fields.map((f) => fieldLabel[f]).join('、');
+      newEditHistory = [
+        {
+          id: genId(),
+          editorId,
+          editorName,
+          editedAt: nowString(),
+          fieldsChanged: fields,
+          summary: `修改了${summary}`
+        },
+        ...newEditHistory
+      ];
+    }
+    set((s) => ({
+      diaries: s.diaries.map((d) =>
         d.id === id
-          ? {
-              ...d,
-              ...diary,
-              updatedAt: new Date().toISOString().replace('T', ' ').slice(0, 19)
-            }
+          ? { ...d, ...patch, updatedAt: nowString(), editHistory: newEditHistory }
           : d
       )
     }));
@@ -184,14 +244,63 @@ export const useAppStore = create<AppState>((set, get) => ({
     get().forcePersist();
   },
 
+  unlockPrivateDiary: (id) => {
+    set((state) => ({
+      unlockedPrivateDiaryIds: state.unlockedPrivateDiaryIds.includes(id)
+        ? state.unlockedPrivateDiaryIds
+        : [...state.unlockedPrivateDiaryIds, id]
+    }));
+  },
+
+  isPrivateDiaryUnlocked: (id) => {
+    return get().unlockedPrivateDiaryIds.includes(id);
+  },
+
   addPhoto: (photo) => {
     set((state) => ({ photos: [photo, ...state.photos] }));
-    get().forcePersist();
+    if (photo.groupId) get().refreshPhotoGroupStats(photo.groupId);
+    else get().forcePersist();
+  },
+
+  addPhotos: (photos) => {
+    if (photos.length === 0) return;
+    set((state) => ({ photos: [...photos, ...state.photos] }));
+    const groupIds = Array.from(new Set(photos.map((p) => p.groupId).filter(Boolean) as string[]));
+    if (groupIds.length > 0) {
+      groupIds.forEach((gid) => get().refreshPhotoGroupStats(gid));
+    } else {
+      get().forcePersist();
+    }
   },
 
   togglePhotoFavorite: (id) => {
     set((state) => ({
       photos: state.photos.map((p) => (p.id === id ? { ...p, isFavorite: !p.isFavorite } : p))
+    }));
+    get().forcePersist();
+  },
+
+  updatePhotoGroup: (id, patch) => {
+    set((state) => ({
+      photoGroups: state.photoGroups.map((g) => (g.id === id ? { ...g, ...patch } : g))
+    }));
+    get().forcePersist();
+  },
+
+  refreshPhotoGroupStats: (groupId) => {
+    const s = get();
+    const groups = groupId ? s.photoGroups.filter((g) => g.id === groupId) : s.photoGroups;
+    if (groups.length === 0) {
+      s.forcePersist();
+      return;
+    }
+    set((state) => ({
+      photoGroups: state.photoGroups.map((g) => {
+        const groupPhotos = state.photos.filter((p) => p.groupId === g.id);
+        const count = groupPhotos.length;
+        const cover = count > 0 ? groupPhotos[0].url : g.cover;
+        return { ...g, photoCount: count, cover };
+      })
     }));
     get().forcePersist();
   },
@@ -259,7 +368,7 @@ export const useAppStore = create<AppState>((set, get) => ({
           ? {
               ...l,
               isRead: true,
-              readAt: new Date().toISOString().replace('T', ' ').slice(0, 19)
+              readAt: nowString()
             }
           : l
       )
@@ -310,5 +419,24 @@ export const useAppStore = create<AppState>((set, get) => ({
       settings: s.settings,
       initializedAt: new Date().toISOString()
     };
+  },
+
+  restoreFromBackup: (data) => {
+    if (!data || !data.diaries) return;
+    set({
+      currentUser: data.currentUser || mockCouple.user1,
+      couple: data.couple || mockCouple,
+      diaries: data.diaries || [],
+      photos: data.photos || [],
+      photoGroups: data.photoGroups || [],
+      anniversaries: data.anniversaries || [],
+      wishes: data.wishes || [],
+      letters: processScheduledLetters(data.letters || []),
+      moodRecords: data.moodRecords || [],
+      settings: data.settings || { isLocked: false, backupFrequency: 'weekly', isSealed: false },
+      unlockedPrivateDiaryIds: [],
+      hasVerifiedAccess: false
+    });
+    get().forcePersist();
   }
 }));

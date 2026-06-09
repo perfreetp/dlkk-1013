@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
-import { View, Text, Image, ScrollView } from '@tarojs/components';
+import { View, Text, Image, ScrollView, Button } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
 import { useAppStore } from '@/store/useAppStore';
-import { formatDate } from '@/utils';
+import { formatDate, generateId } from '@/utils';
 import PhotoCard from '@/components/PhotoCard';
 import EmptyState from '@/components/EmptyState';
+import type { Photo } from '@/types';
 
 function AlbumDetailPage() {
   const router = useRouter();
@@ -15,9 +16,13 @@ function AlbumDetailPage() {
   const photos = useAppStore((state) => state.photos);
   const photoGroups = useAppStore((state) => state.photoGroups);
   const togglePhotoFavorite = useAppStore((state) => state.togglePhotoFavorite);
+  const addPhotos = useAppStore((state) => state.addPhotos);
+  const currentUser = useAppStore((state) => state.currentUser);
+  const refreshPhotoGroupStats = useAppStore((state) => state.refreshPhotoGroupStats);
 
   useDidShow(() => {
     console.log('[AlbumDetailPage] Group ID:', groupId);
+    if (groupId) refreshPhotoGroupStats(groupId);
   });
 
   const group = useMemo(() => photoGroups.find((g) => g.id === groupId), [photoGroups, groupId]);
@@ -37,7 +42,19 @@ function AlbumDetailPage() {
     Taro.chooseImage({
       count: 9,
       success: (res) => {
-        Taro.showToast({ title: `已添加${res.tempFilePaths.length}张照片`, icon: 'success' });
+        const paths = res.tempFilePaths || (res as any).tempFiles?.map((f: any) => f.path) || [];
+        if (paths.length === 0) return;
+        const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+        const newPhotos: Photo[] = paths.map((p: string) => ({
+          id: generateId(),
+          url: p,
+          uploadedBy: currentUser.id,
+          uploadedAt: now,
+          isFavorite: false,
+          groupId: groupId || undefined
+        }));
+        addPhotos(newPhotos);
+        Taro.showToast({ title: `已添加${newPhotos.length}张照片`, icon: 'success' });
       }
     });
   };

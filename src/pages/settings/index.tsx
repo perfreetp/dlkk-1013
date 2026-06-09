@@ -5,6 +5,9 @@ import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useAppStore } from '@/store/useAppStore';
 import { formatDateTime } from '@/utils';
+import type { PersistedData } from '@/store/useAppStore';
+
+type RestoreStep = 'list' | 'preview';
 
 function SettingsPage() {
   const couple = useAppStore((state) => state.couple);
@@ -16,7 +19,9 @@ function SettingsPage() {
   const anniversaries = useAppStore((state) => state.anniversaries);
   const letters = useAppStore((state) => state.letters);
   const moodRecords = useAppStore((state) => state.moodRecords);
+  const photoGroups = useAppStore((state) => state.photoGroups);
   const exportBackupData = useAppStore((state) => state.exportBackupData);
+  const restoreFromBackup = useAppStore((state) => state.restoreFromBackup);
 
   useDidShow(() => {
     console.log('[SettingsPage] Page did show');
@@ -33,6 +38,15 @@ function SettingsPage() {
     jsonStr: string;
   } | null>(null);
   const [showJsonPreview, setShowJsonPreview] = useState(false);
+
+  const [showRestoreModal, setShowRestoreModal] = useState(false);
+  const [restoreStep, setRestoreStep] = useState<RestoreStep>('list');
+  const [localBackups, setLocalBackups] = useState<
+    { key: string; time: string; data: PersistedData; size: string }[]
+  >([]);
+  const [selectedRestore, setSelectedRestore] = useState<PersistedData | null>(null);
+  const [pasteValue, setPasteValue] = useState('');
+  const [showPaste, setShowPaste] = useState(false);
 
   const handleTogglePassword = () => {
     if (!passwordEnabled) {
@@ -195,6 +209,99 @@ function SettingsPage() {
     });
   };
 
+  const scanLocalBackups = () => {
+    try {
+      const list: typeof localBackups = [];
+      const info = (Taro as any).getStorageInfoSync
+        ? (Taro as any).getStorageInfoSync()
+        : null;
+      const keys: string[] = info?.keys || [];
+      keys.forEach((k) => {
+        if (k.startsWith('couple_backup_')) {
+          try {
+            const raw = Taro.getStorageSync(k);
+            if (raw) {
+              const parsed = JSON.parse(raw) as PersistedData;
+              if (parsed.diaries && parsed.photos) {
+                const time = parsed.initializedAt
+                  ? formatDateTime(parsed.initializedAt)
+                  : k;
+                const sizeStr =
+                  raw.length > 1024 * 1024
+                    ? `${(raw.length / 1024 / 1024).toFixed(2)} MB`
+                    : `${(raw.length / 1024).toFixed(1)} KB`;
+                list.push({ key: k, time, data: parsed, size: sizeStr });
+              }
+            }
+          } catch (e) {}
+        }
+      });
+      list.sort((a, b) => (a.key < b.key ? 1 : -1));
+      setLocalBackups(list);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleOpenRestore = () => {
+    scanLocalBackups();
+    setRestoreStep('list');
+    setSelectedRestore(null);
+    setShowRestoreModal(true);
+  };
+
+  const handleSelectBackup = (data: PersistedData) => {
+    setSelectedRestore(data);
+    setRestoreStep('preview');
+  };
+
+  const handlePasteRestore = () => {
+    if (!pasteValue.trim()) {
+      Taro.showToast({ title: '请粘贴备份内容', icon: 'none' });
+      return;
+    }
+    try {
+      const parsed = JSON.parse(pasteValue.trim()) as PersistedData;
+      if (!parsed.diaries || !parsed.photos) throw new Error('格式错误');
+      setSelectedRestore(parsed);
+      setRestoreStep('preview');
+      setShowPaste(false);
+      setPasteValue('');
+    } catch (e) {
+      Taro.showToast({ title: '备份内容格式不正确', icon: 'error' });
+    }
+  };
+
+  const handleConfirmRestore = () => {
+    if (!selectedRestore) return;
+    Taro.showModal({
+      title: '⚠️ 确认恢复？',
+      content:
+        '当前所有数据将被备份中的内容完全替换，此操作不可撤销。确认继续吗？',
+      confirmText: '确认恢复',
+      confirmColor: '#FF6B9D',
+      success: (res) => {
+        if (res.confirm) {
+          Taro.showLoading({ title: '恢复中...' });
+          setTimeout(() => {
+            restoreFromBackup(selectedRestore);
+            Taro.hideLoading();
+            setShowRestoreModal(false);
+            setSelectedRestore(null);
+            Taro.showToast({ title: '数据已恢复 ✅', icon: 'success' });
+            Taro.reLaunch({ url: '/pages/home/index' });
+          }, 800);
+        }
+      }
+    });
+  };
+
+  const compareNum = (current: number, backup: number) => {
+    if (backup > current) return `+${backup - current}`;
+    if (backup < current) return `${backup - current}`;
+    return '0';
+  };
+
   return (
     <ScrollView scrollY className={styles.container}>
       <View className={styles.pagePadding}>
@@ -284,7 +391,7 @@ function SettingsPage() {
           </View>
           <Text className={styles.menuArrow}>›</Text>
         </View>
-        <View className={styles.menuItem}>
+        <View className={styles.menuItem} onClick={handleOpenRestore}>
           <View className={styles.menuIcon}>📥</View>
           <View className={styles.menuContent}>
             <Text className={styles.menuTitle}>恢复数据</Text>
@@ -599,6 +706,482 @@ function SettingsPage() {
                 </ScrollView>
               </View>
             )}
+          </View>
+        </View>
+      )}
+
+      {showRestoreModal && (
+        <View
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '32rpx'
+          }}
+          onClick={() => setShowRestoreModal(false)}
+        >
+          <View
+            style={{
+              width: '100%',
+              maxHeight: '85vh',
+              background: '#fff',
+              borderRadius: '24rpx',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <View
+              style={{
+                padding: '28rpx 32rpx',
+                background: 'linear-gradient(135deg, #722ED1 0%, #9254DE 100%)',
+                color: '#fff',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <View>
+                <Text
+                  style={{
+                    display: 'block',
+                    fontSize: '34rpx',
+                    fontWeight: 'bold',
+                    marginBottom: '4rpx'
+                  }}
+                >
+                  📥 恢复数据
+                </Text>
+                <Text style={{ fontSize: '22rpx', opacity: 0.85 }}>
+                  {restoreStep === 'list' ? '选择备份来源' : '预览备份差异'}
+                </Text>
+              </View>
+              <Text
+                style={{ fontSize: '28rpx' }}
+                onClick={() => setShowRestoreModal(false)}
+              >
+                关闭
+              </Text>
+            </View>
+
+            {restoreStep === 'list' && (
+              <View style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+                <View
+                  style={{
+                    padding: '20rpx 32rpx',
+                    background: '#F7F8FA',
+                    borderBottom: '1rpx solid #F2F3F5'
+                  }}
+                >
+                  <Button
+                    style={{
+                      width: '100%',
+                      height: '72rpx',
+                      lineHeight: '72rpx',
+                      background: '#fff',
+                      color: '#722ED1',
+                      border: '2rpx solid #9254DE',
+                      borderRadius: '12rpx',
+                      fontSize: '26rpx'
+                    }}
+                    onClick={() => setShowPaste(true)}
+                  >
+                    📋 粘贴备份内容恢复
+                  </Button>
+                </View>
+                <ScrollView scrollY style={{ flex: 1, padding: '16rpx 24rpx 32rpx' }}>
+                  {localBackups.length > 0 ? (
+                    <View style={{ display: 'flex', flexDirection: 'column', gap: '16rpx' }}>
+                      <Text
+                        style={{
+                          fontSize: '26rpx',
+                          color: '#86909C',
+                          marginTop: '8rpx',
+                          marginBottom: '8rpx',
+                          paddingHorizontal: '8rpx'
+                        }}
+                      >
+                        本地备份（{localBackups.length}个）
+                      </Text>
+                      {localBackups.map((b) => (
+                        <View
+                          key={b.key}
+                          style={{
+                            padding: '24rpx',
+                            background: '#F7F8FA',
+                            borderRadius: '16rpx',
+                            border: '2rpx solid transparent'
+                          }}
+                          onClick={() => handleSelectBackup(b.data)}
+                        >
+                          <View
+                            style={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              marginBottom: '12rpx'
+                            }}
+                          >
+                            <Text
+                              style={{
+                                fontSize: '28rpx',
+                                fontWeight: 'bold',
+                                color: '#1D2129'
+                              }}
+                            >
+                              🗓️ {b.time}
+                            </Text>
+                            <Text style={{ fontSize: '22rpx', color: '#FF6B9D' }}>
+                              {b.size}
+                            </Text>
+                          </View>
+                          <View style={{ display: 'flex', flexWrap: 'wrap', gap: '16rpx' }}>
+                            <Text style={{ fontSize: '22rpx', color: '#86909C' }}>
+                              📝 {b.data.diaries?.length || 0} 日记
+                            </Text>
+                            <Text style={{ fontSize: '22rpx', color: '#86909C' }}>
+                              📷 {b.data.photos?.length || 0} 照片
+                            </Text>
+                            <Text style={{ fontSize: '22rpx', color: '#86909C' }}>
+                              💌 {b.data.letters?.length || 0} 信件
+                            </Text>
+                            <Text style={{ fontSize: '22rpx', color: '#86909C' }}>
+                              🌟 {b.data.wishes?.length || 0} 愿望
+                            </Text>
+                            <Text style={{ fontSize: '22rpx', color: '#722ED1' }}>
+                              点击查看详情 ›
+                            </Text>
+                          </View>
+                        </View>
+                      ))}
+                    </View>
+                  ) : (
+                    <View style={{ padding: '80rpx 24rpx', alignItems: 'center' }}>
+                      <View style={{ fontSize: '80rpx', marginBottom: '16rpx' }}>
+                        📭
+                      </View>
+                      <Text style={{ fontSize: '28rpx', color: '#86909C' }}>
+                        本地暂无备份
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: '24rpx',
+                          color: '#C9CDD4',
+                          marginTop: '8rpx',
+                          textAlign: 'center'
+                        }}
+                      >
+                        请先"导出数据"生成备份，或使用"粘贴备份内容"方式恢复
+                      </Text>
+                    </View>
+                  )}
+                </ScrollView>
+              </View>
+            )}
+
+            {restoreStep === 'preview' && selectedRestore && (
+              <View
+                style={{
+                  flex: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: '24rpx 32rpx 32rpx'
+                }}
+              >
+                {selectedRestore.initializedAt && (
+                  <View
+                    style={{
+                      padding: '16rpx 20rpx',
+                      background: '#F3F0FF',
+                      borderRadius: '12rpx',
+                      marginBottom: '24rpx'
+                    }}
+                  >
+                    <Text style={{ fontSize: '24rpx', color: '#722ED1' }}>
+                      🗓️ 备份生成时间：
+                      {formatDateTime(selectedRestore.initializedAt)}
+                    </Text>
+                  </View>
+                )}
+
+                <View style={{ marginBottom: '24rpx' }}>
+                  <View
+                    style={{
+                      display: 'flex',
+                      padding: '16rpx 20rpx',
+                      background: '#F7F8FA',
+                      borderRadius: '12rpx 12rpx 0 0',
+                      borderBottom: '1rpx solid #E5E6EB'
+                    }}
+                  >
+                    <Text style={{ flex: 1.4, fontSize: '24rpx', color: '#86909C' }}>
+                      数据项
+                    </Text>
+                    <Text
+                      style={{
+                        flex: 1,
+                        fontSize: '24rpx',
+                        color: '#86909C',
+                        textAlign: 'center'
+                      }}
+                    >
+                      当前
+                    </Text>
+                    <Text
+                      style={{
+                        flex: 1,
+                        fontSize: '24rpx',
+                        color: '#86909C',
+                        textAlign: 'center'
+                      }}
+                    >
+                      备份
+                    </Text>
+                    <Text
+                      style={{
+                        flex: 1,
+                        fontSize: '24rpx',
+                        color: '#86909C',
+                        textAlign: 'right'
+                      }}
+                    >
+                      差异
+                    </Text>
+                  </View>
+                  {(
+                    [
+                      ['📝 日记', 'diaries'],
+                      ['📷 照片', 'photos'],
+                      ['📁 分组', 'photoGroups'],
+                      ['🎂 纪念日', 'anniversaries'],
+                      ['🌟 愿望', 'wishes'],
+                      ['💌 信件', 'letters'],
+                      ['🌈 心情', 'moodRecords']
+                    ] as [string, keyof PersistedData][]
+                  ).map(([label, key]) => {
+                    const cur = (
+                      {
+                        diaries: diaries.length,
+                        photos: photos.length,
+                        photoGroups: photoGroups.length,
+                        anniversaries: anniversaries.length,
+                        wishes: wishes.length,
+                        letters: letters.length,
+                        moodRecords: moodRecords.length
+                      } as any
+                    )[key];
+                    const bak = (selectedRestore[key] as unknown[])?.length || 0;
+                    const diff = compareNum(cur, bak);
+                    const diffColor =
+                      bak > cur
+                        ? '#4CAF50'
+                        : bak < cur
+                        ? '#F53F3F'
+                        : '#86909C';
+                    return (
+                      <View
+                        key={key}
+                        style={{
+                          display: 'flex',
+                          padding: '16rpx 20rpx',
+                          borderBottom: '1rpx solid #F2F3F5',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <Text
+                          style={{
+                            flex: 1.4,
+                            fontSize: '26rpx',
+                            color: '#1D2129'
+                          }}
+                        >
+                          {label}
+                        </Text>
+                        <Text
+                          style={{
+                            flex: 1,
+                            fontSize: '26rpx',
+                            textAlign: 'center',
+                            color: '#4E5969'
+                          }}
+                        >
+                          {cur}
+                        </Text>
+                        <Text
+                          style={{
+                            flex: 1,
+                            fontSize: '26rpx',
+                            textAlign: 'center',
+                            color: '#722ED1',
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          {bak}
+                        </Text>
+                        <Text
+                          style={{
+                            flex: 1,
+                            fontSize: '26rpx',
+                            textAlign: 'right',
+                            color: diffColor,
+                            fontWeight: 'bold'
+                          }}
+                        >
+                          {diff}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                </View>
+
+                <View style={{ flex: 1 }} />
+
+                <View style={{ display: 'flex', flexDirection: 'column', gap: '16rpx' }}>
+                  <Button
+                    style={{
+                      width: '100%',
+                      height: '80rpx',
+                      lineHeight: '80rpx',
+                      background: 'linear-gradient(135deg, #722ED1 0%, #9254DE 100%)',
+                      color: '#fff',
+                      borderRadius: '14rpx',
+                      fontSize: '28rpx',
+                      fontWeight: 'bold',
+                      border: 'none'
+                    }}
+                    onClick={handleConfirmRestore}
+                  >
+                    ✅ 确认恢复此备份
+                  </Button>
+                  <Button
+                    style={{
+                      width: '100%',
+                      height: '72rpx',
+                      lineHeight: '72rpx',
+                      background: '#F7F8FA',
+                      color: '#4E5969',
+                      borderRadius: '14rpx',
+                      fontSize: '26rpx',
+                      border: 'none'
+                    }}
+                    onClick={() => {
+                      setRestoreStep('list');
+                      setSelectedRestore(null);
+                    }}
+                  >
+                    ← 返回选择其他备份
+                  </Button>
+                </View>
+              </View>
+            )}
+          </View>
+        </View>
+      )}
+
+      {showPaste && (
+        <View
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 1000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '32rpx'
+          }}
+          onClick={() => setShowPaste(false)}
+        >
+          <View
+            style={{
+              width: '100%',
+              background: '#fff',
+              borderRadius: '20rpx',
+              padding: '32rpx',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Text
+              style={{
+                fontSize: '32rpx',
+                fontWeight: 'bold',
+                color: '#1D2129',
+                marginBottom: '8rpx'
+              }}
+            >
+              📋 粘贴备份 JSON
+            </Text>
+            <Text style={{ fontSize: '24rpx', color: '#86909C', marginBottom: '24rpx' }}>
+              将之前导出的备份内容完整粘贴到下方
+            </Text>
+            <Textarea
+              value={pasteValue}
+              placeholder="在此粘贴备份JSON..."
+              autoHeight
+              style={{
+                width: '100%',
+                minHeight: '280rpx',
+                background: '#F7F8FA',
+                borderRadius: '14rpx',
+                padding: '20rpx',
+                fontSize: '24rpx',
+                lineHeight: '32rpx',
+                color: '#1D2129',
+                boxSizing: 'border-box'
+              }}
+              onInput={(e) => setPasteValue(e.detail.value)}
+            />
+            <View
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16rpx',
+                marginTop: '24rpx'
+              }}
+            >
+              <Button
+                style={{
+                  width: '100%',
+                  height: '76rpx',
+                  lineHeight: '76rpx',
+                  background: 'linear-gradient(135deg, #722ED1 0%, #9254DE 100%)',
+                  color: '#fff',
+                  borderRadius: '14rpx',
+                  fontSize: '28rpx',
+                  border: 'none'
+                }}
+                onClick={handlePasteRestore}
+              >
+                解析并预览
+              </Button>
+              <Button
+                style={{
+                  width: '100%',
+                  height: '72rpx',
+                  lineHeight: '72rpx',
+                  background: 'transparent',
+                  color: '#86909C',
+                  border: 'none',
+                  fontSize: '26rpx'
+                }}
+                onClick={() => setShowPaste(false)}
+              >
+                取消
+              </Button>
+            </View>
           </View>
         </View>
       )}
