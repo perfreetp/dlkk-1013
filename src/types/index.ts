@@ -140,6 +140,15 @@ export interface Letter {
   readAt?: string;
 }
 
+export type NotifyType = 'diary_edited' | 'photo_favorited' | 'wish_claimed' | 'letter_read';
+
+export interface NotificationPrefs {
+  diary_edited: boolean;
+  photo_favorited: boolean;
+  wish_claimed: boolean;
+  letter_read: boolean;
+}
+
 export interface Settings {
   accessPassword?: string;
   isLocked: boolean;
@@ -147,6 +156,7 @@ export interface Settings {
   lastBackupAt?: string;
   isSealed: boolean;
   sealedAt?: string;
+  notifyPrefs: NotificationPrefs;
 }
 
 export interface QuickEntry {

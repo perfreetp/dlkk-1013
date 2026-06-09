@@ -24,6 +24,56 @@
   display: block;
 }
 
+.personTabs {
+  display: flex;
+  gap: 12rpx;
+  padding: 6rpx 6rpx 30rpx;
+}
+
+.personTab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  padding: 16rpx 12rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.2s;
+}
+
+.personTabActive {
+  background: linear-gradient(135deg, #FFE9F0, #FFF5F7);
+  border: 2rpx solid #FF6B9D;
+  box-shadow: 0 4rpx 12rpx rgba(255,107,157,0.15);
+}
+
+.personTabAvatar {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #eee;
+}
+
+.personTabIcon {
+  font-size: 32rpx;
+  line-height: 1;
+}
+
+.personTabLabel {
+  font-size: 24rpx;
+  color: #6b616e;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.personTabLabelActive {
+  color: #FF3B6B;
+  font-weight: 700;
+}
+
+
 .timeline {
   display: flex;
   flex-direction: column;
@@ -282,4 +332,338 @@
   color: #fff;
   font-size: 32rpx;
   font-weight: 700;
+}
+
+.monthHeader {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  padding: 28rpx 14rpx 18rpx;
+  margin-top: 10rpx;
+}
+
+.monthDot {
+  width: 22rpx;
+  height: 22rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF6B9D, #FF9BB5);
+  box-shadow: 0 0 0 8rpx rgba(255,107,157,0.15);
+  flex-shrink: 0;
+}
+
+.monthLabel {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1f1d21;
+  display: block;
+}
+
+.monthMeta {
+  font-size: 22rpx;
+  color: #a89ba9;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.monthToggle {
+  font-size: 28rpx;
+  color: #FF6B9D;
+  font-weight: 700;
+  transition: transform 0.25s;
+}
+
+.monthToggleCollapsed {
+  transform: rotate(-90deg);
+}
+
+.recallBtn {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 10rpx 18rpx;
+  background: #fff;
+  border: 2rpx solid #FF6B9D;
+  border-radius: 999rpx;
+}
+
+.moodAvatarLine {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.moodAvatar {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #eee;
+}
+
+.diaryAuthorAvatar {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  background: #eee;
+}
+
+.recallMask {
+  position: fixed;
+  inset: 0;
+  background: rgba(20, 10, 25, 0.72);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48rpx 36rpx;
+  backdrop-filter: blur(8rpx);
+}
+
+.recallCardWrap {
+  position: relative;
+  width: 100%;
+  max-width: 640rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28rpx;
+}
+
+.recallClose {
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  backdrop-filter: blur(10rpx);
+}
+
+.recallCard {
+  width: 100%;
+  background: linear-gradient(160deg, #FFFBF7 0%, #FFF5F7 40%, #FFE9F0 100%);
+  border-radius: 36rpx;
+  padding: 32rpx 28rpx 36rpx;
+  box-shadow:
+    0 20rpx 60rpx rgba(255,107,157,0.35),
+    inset 0 0 0 2rpx rgba(255,107,157,0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.recallDecor {
+  position: absolute;
+  top: -10rpx;
+  right: -10rpx;
+  transform: rotate(15deg);
+  padding: 10rpx 22rpx;
+  background: linear-gradient(135deg, #FF6B9D, #FF3B6B);
+  border-radius: 12rpx;
+  box-shadow: 0 6rpx 18rpx rgba(255,59,107,0.4);
+}
+
+.recallDecorText {
+  font-size: 20rpx;
+  font-weight: 700;
+  letter-spacing: 4rpx;
+  color: #fff;
+}
+
+.recallHeader {
+  text-align: center;
+  padding: 8rpx 0 20rpx;
+  border-bottom: 2rpx dashed rgba(255,107,157,0.2);
+}
+
+.recallDateLabel {
+  display: block;
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #FF3B6B;
+  letter-spacing: 2rpx;
+}
+
+.recallWeekday {
+  display: block;
+  font-size: 26rpx;
+  color: #A3405A;
+  margin-top: 6rpx;
+  font-weight: 500;
+}
+
+.recallSummary {
+  display: inline-block;
+  margin-top: 14rpx;
+  padding: 10rpx 24rpx;
+  background: rgba(255,255,255,0.7);
+  border: 2rpx solid rgba(255,107,157,0.2);
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  color: #FF6B9D;
+  font-weight: 500;
+}
+
+.recallDivider {
+  text-align: center;
+  padding: 22rpx 0 10rpx;
+  color: rgba(255,107,157,0.35);
+  letter-spacing: 10rpx;
+  font-size: 20rpx;
+}
+
+.recallSection {
+  margin-top: 22rpx;
+}
+
+.recallSectionTitle {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #4a414d;
+  margin-bottom: 14rpx;
+  padding-left: 10rpx;
+  border-left: 5rpx solid #FF6B9D;
+  line-height: 1;
+}
+
+.recallMoods {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.recallMoodItem {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.recallMoodAvatar {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: #fff;
+  border: 2rpx solid rgba(255,255,255,0.9);
+  flex-shrink: 0;
+}
+
+.recallMoodBubble {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14rpx 20rpx;
+  border-radius: 18rpx;
+  border: 2rpx solid #eee;
+  font-size: 24rpx;
+  color: #4a414d;
+}
+
+.recallMoodName {
+  font-size: 22rpx;
+  color: #6b616e;
+  font-weight: 500;
+}
+
+.recallAnniv {
+  display: block;
+  font-size: 26rpx;
+  color: #7a5b20;
+  padding: 12rpx 18rpx;
+  background: rgba(255,249,230,0.8);
+  border-radius: 14rpx;
+  margin-bottom: 10rpx;
+}
+
+.recallAnniv:last-child {
+  margin-bottom: 0;
+}
+
+.recallDiary {
+  padding: 16rpx 18rpx;
+  background: rgba(255,255,255,0.8);
+  border-radius: 16rpx;
+  border: 2rpx solid rgba(255,107,157,0.12);
+  margin-bottom: 12rpx;
+}
+
+.recallDiary:last-child {
+  margin-bottom: 0;
+}
+
+.recallAuthorAvatar {
+  width: 34rpx;
+  height: 34rpx;
+  border-radius: 50%;
+  background: #eee;
+}
+
+.recallDiaryTitle {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #1f1d21;
+}
+
+.recallDiaryExcerpt {
+  display: block;
+  font-size: 24rpx;
+  color: #6b616e;
+  line-height: 1.6;
+  padding-left: 44rpx;
+}
+
+.recallPhotos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10rpx;
+}
+
+.recallPhotoThumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 14rpx;
+  background: #fff;
+  border: 2rpx solid rgba(255,255,255,0.9);
+}
+
+.recallSign {
+  margin-top: 28rpx;
+  padding-top: 20rpx;
+  border-top: 2rpx dashed rgba(255,107,157,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+.recallSignAvatar {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  border: 3rpx solid #fff;
+  background: #eee;
+}
+
+.recallSignAvatar:last-child {
+  margin-left: -18rpx;
+}
+
+.recallSignText {
+  font-size: 22rpx;
+  color: #A3405A;
+  font-weight: 500;
+  font-style: italic;
+}
+
+.recallSaveBtn {
+  width: 100%;
+  padding: 24rpx 32rpx;
+  background: linear-gradient(135deg, #FF6B9D, #FF3B6B);
+  border-radius: 999rpx;
+  text-align: center;
+  box-shadow: 0 12rpx 30rpx rgba(255,59,107,0.4);
 }

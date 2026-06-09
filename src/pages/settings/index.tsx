@@ -361,6 +361,72 @@ function SettingsPage() {
         </View>
       </View>
 
+      <Text className={styles.sectionTitle}>通知偏好</Text>
+      <View className={styles.menuGroup}>
+        {[
+          {
+            key: 'diary_edited',
+            icon: '✏️',
+            title: '日记编辑通知',
+            desc: 'TA 编辑日记时提醒我'
+          },
+          {
+            key: 'photo_favorited',
+            icon: '⭐',
+            title: '照片收藏通知',
+            desc: 'TA 收藏照片时提醒我'
+          },
+          {
+            key: 'wish_claimed',
+            icon: '🌟',
+            title: '愿望认领通知',
+            desc: 'TA 认领愿望时提醒我'
+          },
+          {
+            key: 'letter_read',
+            icon: '💌',
+            title: '信件已读通知',
+            desc: 'TA 读了我写的信时提醒我'
+          }
+        ].map((opt) => {
+          const notifyPrefs = settings.notifyPrefs || {
+            diary_edited: true,
+            photo_favorited: true,
+            wish_claimed: true,
+            letter_read: true
+          };
+          const on = (notifyPrefs as any)[opt.key] !== false;
+          return (
+            <View key={opt.key} className={styles.menuItem}>
+              <View className={styles.menuIcon}>{opt.icon}</View>
+              <View className={styles.menuContent}>
+                <Text className={styles.menuTitle}>{opt.title}</Text>
+                <Text className={styles.menuDesc}>{opt.desc}</Text>
+              </View>
+              <View
+                className={classnames(styles.switchWrap, on && styles.active)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  updateSettings({
+                    notifyPrefs: {
+                      ...(settings.notifyPrefs || {
+                        diary_edited: true,
+                        photo_favorited: true,
+                        wish_claimed: true,
+                        letter_read: true
+                      }),
+                      [opt.key]: !on
+                    }
+                  });
+                }}
+              >
+                <View className={styles.switchDot} />
+              </View>
+            </View>
+          );
+        })}
+      </View>
+
       <Text className={styles.sectionTitle}>数据管理</Text>
       <View className={styles.menuGroup}>
         <View className={styles.menuItem} onClick={handleBackup}>

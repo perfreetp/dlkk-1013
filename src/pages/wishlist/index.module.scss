@@ -128,3 +128,17 @@
   color: $color-success;
   font-weight: $font-weight-medium;
 }
+
+.highlightWish {
+  position: relative;
+  border-radius: $radius-lg;
+  box-shadow: 0 0 0 6rpx rgba(139, 195, 74, 0.35);
+  animation: highlightPulse 1.2s ease-in-out 3;
+  z-index: 1;
+}
+
+@keyframes highlightPulse {
+  0%, 100% { box-shadow: 0 0 0 6rpx rgba(139, 195, 74, 0.35); }
+  50% { box-shadow: 0 0 0 12rpx rgba(139, 195, 74, 0.15); }
+}
+

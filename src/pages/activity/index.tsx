@@ -33,14 +33,28 @@ function formatTime(str: string) {
 function ActivityPage() {
   const activities = useAppStore((s) => s.activities);
   const currentUser = useAppStore((s) => s.currentUser);
+  const couple = useAppStore((s) => s.couple);
   const markActivityRead = useAppStore((s) => s.markActivityRead);
   const markAllActivitiesRead = useAppStore((s) => s.markAllActivitiesRead);
   const getUnreadActivityCount = useAppStore((s) => s.getUnreadActivityCount);
+  const memoryPersonFilter = useAppStore((s) => s.memoryPersonFilter);
+  const setMemoryPersonFilter = useAppStore((s) => s.setMemoryPersonFilter);
 
   const unreadCount = useMemo(
     () => getUnreadActivityCount(currentUser.id),
     [activities, currentUser.id, getUnreadActivityCount]
   );
+
+  const filteredActivities = useMemo(() => {
+    if (!memoryPersonFilter || memoryPersonFilter === 'all') return activities;
+    return activities.filter((a) => a.actorId === memoryPersonFilter);
+  }, [activities, memoryPersonFilter]);
+
+  const personTabs = [
+    { key: 'all', label: '全部', avatar: '', icon: '💞' },
+    { key: couple.user1.id, label: couple.user1.name, avatar: couple.user1.avatar, icon: '' },
+    { key: couple.user2.id, label: couple.user2.name, avatar: couple.user2.avatar, icon: '' }
+  ];
 
   useDidShow(() => {
     if (unreadCount > 0) {
@@ -60,19 +74,22 @@ function ActivityPage() {
         if (a.targetId === 'all-photos') {
           Taro.switchTab({ url: '/pages/album/index' });
         } else {
-          Taro.navigateTo({ url: `/pages/album-detail/index?id=${a.targetId}` });
+          Taro.navigateTo({
+            url: `/pages/album-detail/index?groupId=${a.targetId}&name=${encodeURIComponent(a.targetTitle.replace(/^相册「|」$/g, ''))}`
+          });
         }
         break;
       case 'photo_favorited':
+        try {
+          Taro.setStorageSync('album_default_tab', 'favorites');
+        } catch (e) { /* ignore */ }
         Taro.switchTab({ url: '/pages/album/index' });
         break;
       case 'wish_claimed':
-        Taro.switchTab({ url: '/pages/mine/index' });
-        setTimeout(() => Taro.switchTab({ url: '/pages/home/index' }), 0);
+        Taro.navigateTo({ url: '/pages/wishlist/index?highlight=' + encodeURIComponent(a.targetId) });
         break;
       case 'letter_read':
-        Taro.switchTab({ url: '/pages/home/index' });
-        setTimeout(() => Taro.navigateTo({ url: '/pages/mailbox/index' }), 50);
+        Taro.navigateTo({ url: '/pages/mailbox/index?tab=sent' });
         break;
     }
   };
@@ -98,7 +115,31 @@ function ActivityPage() {
         )}
       </View>
 
-      {activities.length === 0 ? (
+      <View className={styles.personTabs}>
+        {personTabs.map((p) => {
+          const active = memoryPersonFilter === p.key || (!memoryPersonFilter && p.key === 'all');
+          return (
+            <View
+              key={p.key}
+              className={classnames(styles.personTab, active && styles.personTabActive)}
+              onClick={() => setMemoryPersonFilter(p.key)}
+            >
+              {p.avatar ? (
+                <Image src={p.avatar} className={styles.personTabAvatar} mode="aspectFill" />
+              ) : (
+                <Text className={styles.personTabIcon}>{p.icon}</Text>
+              )}
+              <Text
+                className={classnames(styles.personTabLabel, active && styles.personTabLabelActive)}
+              >
+                {p.label}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
+
+      {filteredActivities.length === 0 ? (
         <EmptyState
           emoji="💫"
           title="还没有动态哦"
@@ -106,7 +147,7 @@ function ActivityPage() {
         />
       ) : (
         <View className={styles.list}>
-          {activities.map((a) => {
+          {filteredActivities.map((a) => {
             const meta = typeMeta[a.type];
             const isUnread =
               !a.readBy.includes(currentUser.id) && a.actorId !== currentUser.id;

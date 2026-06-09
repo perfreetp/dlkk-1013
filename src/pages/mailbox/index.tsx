@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView, Button, Image } from '@tarojs/components';
-import Taro, { useDidShow } from '@tarojs/taro';
+import Taro, { useDidShow, useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useAppStore } from '@/store/useAppStore';
@@ -12,6 +12,7 @@ import type { Letter } from '@/types';
 type FilterType = 'inbox' | 'sent' | 'scheduled';
 
 function MailboxPage() {
+  const router = useRouter();
   const letters = useAppStore((state) => state.letters);
   const currentUser = useAppStore((state) => state.currentUser);
   const couple = useAppStore((state) => state.couple);
@@ -19,12 +20,22 @@ function MailboxPage() {
   const processAllScheduledLetters = useAppStore((state) => state.processAllScheduledLetters);
   const switchUser = useAppStore((state) => state.switchUser);
 
+  const initialTab =
+    router?.params?.tab === 'sent'
+      ? 'sent'
+      : router?.params?.tab === 'scheduled'
+        ? 'scheduled'
+        : router?.params?.tab === 'inbox'
+          ? 'inbox'
+          : 'inbox';
+
   useDidShow(() => {
     console.log('[MailboxPage] Page did show');
     processAllScheduledLetters();
+    if (initialTab) setFilterType(initialTab as FilterType);
   });
 
-  const [filterType, setFilterType] = useState<FilterType>('inbox');
+  const [filterType, setFilterType] = useState<FilterType>(initialTab as FilterType);
   const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
 
   const inboxLetters = useMemo(

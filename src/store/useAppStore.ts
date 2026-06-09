@@ -131,9 +131,11 @@ interface AppState {
   isStorageLoaded: boolean;
   hasVerifiedAccess: boolean;
   unlockedPrivateDiaryIds: string[];
+  memoryPersonFilter: 'all' | string;
 
   setCurrentUser: (user: User) => void;
   switchUser: (userId: string) => void;
+  setMemoryPersonFilter: (f: 'all' | string) => void;
   addDiary: (diary: Diary) => void;
   updateDiary: (
     id: string,
@@ -199,12 +201,16 @@ export const useAppStore = create<AppState>((set, get) => ({
   settings: persisted.settings || {
     isLocked: false,
     backupFrequency: 'weekly',
-    isSealed: false
+    isSealed: false,
+    notifyPrefs: { diary_edited: true, photo_favorited: true, wish_claimed: true, letter_read: true }
   },
   selectedTab: 'home',
   isStorageLoaded: true,
   hasVerifiedAccess: false,
   unlockedPrivateDiaryIds: [],
+  memoryPersonFilter: 'all',
+
+  setMemoryPersonFilter: (f) => set({ memoryPersonFilter: f }),
 
   forcePersist: () => {
     const s = get();
@@ -311,6 +317,21 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   addActivity: (type, actor, targetId, targetTitle, detail) => {
+    const s = get();
+    const otherUserId =
+      actor.id === s.couple.user1.id ? s.couple.user2.id : s.couple.user1.id;
+    const prefs = s.settings.notifyPrefs || {
+      diary_edited: true,
+      photo_favorited: true,
+      wish_claimed: true,
+      letter_read: true
+    };
+    const userTurnedOff =
+      type === 'photo_uploaded'
+        ? false
+        : (prefs as any)[type] === false;
+    const readBy: string[] = [actor.id];
+    if (userTurnedOff) readBy.push(otherUserId);
     const activity: ActivityRecord = {
       id: genId(),
       type,
@@ -321,7 +342,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       targetTitle,
       detail,
       createdAt: nowString(),
-      readBy: [actor.id]
+      readBy
     };
     set((state) => ({ activities: [activity, ...state.activities] }));
   },

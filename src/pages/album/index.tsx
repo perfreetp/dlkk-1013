@@ -17,10 +17,20 @@ function AlbumPage() {
   const togglePhotoFavorite = useAppStore((state) => state.togglePhotoFavorite);
   const addPhotos = useAppStore((state) => state.addPhotos);
   const currentUser = useAppStore((state) => state.currentUser);
+  const couple = useAppStore((state) => state.couple);
   const refreshPhotoGroupStats = useAppStore((state) => state.refreshPhotoGroupStats);
+  const memoryPersonFilter = useAppStore((state) => state.memoryPersonFilter);
+  const setMemoryPersonFilter = useAppStore((state) => state.setMemoryPersonFilter);
 
   useDidShow(() => {
     console.log('[AlbumPage] Page did show');
+    try {
+      const t = Taro.getStorageSync('album_default_tab') as TabType | '';
+      if (t && (t === 'groups' || t === 'timeline' || t === 'favorites')) {
+        setActiveTab(t);
+        Taro.removeStorageSync('album_default_tab');
+      }
+    } catch (e) { /* ignore */ }
   });
 
   const [activeTab, setActiveTab] = useState<TabType>('groups');
@@ -28,6 +38,7 @@ function AlbumPage() {
   const photosByDate = useMemo(() => {
     const map = new Map<string, typeof photos>();
     photos.forEach((photo) => {
+      if (memoryPersonFilter && memoryPersonFilter !== 'all' && photo.uploadedBy !== memoryPersonFilter) return;
       const date = formatDate(photo.uploadedAt, 'YYYY年MM月');
       if (!map.has(date)) {
         map.set(date, []);
@@ -35,9 +46,17 @@ function AlbumPage() {
       map.get(date)!.push(photo);
     });
     return Array.from(map.entries());
-  }, [photos]);
+  }, [photos, memoryPersonFilter]);
 
-  const favoritePhotos = useMemo(() => photos.filter((p) => p.isFavorite), [photos]);
+  const favoritePhotos = useMemo(
+    () =>
+      photos.filter((p) => {
+        if (!p.isFavorite) return false;
+        if (memoryPersonFilter && memoryPersonFilter !== 'all' && p.uploadedBy !== memoryPersonFilter) return false;
+        return true;
+      }),
+    [photos, memoryPersonFilter]
+  );
 
   const handleGroupClick = (groupId: string, groupName: string) => {
     Taro.navigateTo({
@@ -97,6 +116,34 @@ function AlbumPage() {
           ❤️ 收藏
         </Text>
       </View>
+
+      {activeTab !== 'groups' && (
+        <View className={styles.personTabs}>
+          {[
+            { key: 'all', label: '全部照片', icon: '💞' },
+            { key: couple.user1.id, label: couple.user1.name, avatar: couple.user1.avatar, icon: '' },
+            { key: couple.user2.id, label: couple.user2.name, avatar: couple.user2.avatar, icon: '' }
+          ].map((p) => {
+            const active = memoryPersonFilter === p.key || (!memoryPersonFilter && p.key === 'all');
+            return (
+              <View
+                key={p.key}
+                className={classnames(styles.personTab, active && styles.personTabActive)}
+                onClick={() => setMemoryPersonFilter(p.key)}
+              >
+                {p.avatar ? (
+                  <Image src={p.avatar} className={styles.personTabAvatar} mode="aspectFill" />
+                ) : (
+                  <Text className={styles.personTabIcon}>{p.icon}</Text>
+                )}
+                <Text className={classnames(styles.personTabLabel, active && styles.personTabLabelActive)}>
+                  {p.label}
+                </Text>
+              </View>
+            );
+          })}
+        </View>
+      )}
 
       {activeTab === 'groups' && (
         <>

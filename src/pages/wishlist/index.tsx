@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import Taro, { useDidShow } from '@tarojs/taro';
+import Taro, { useDidShow, useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
 import { useAppStore } from '@/store/useAppStore';
@@ -11,13 +11,22 @@ import type { Wish } from '@/types';
 type FilterType = 'all' | 'pending' | 'claimed' | 'completed';
 
 function WishlistPage() {
+  const router = useRouter();
   const wishes = useAppStore((state) => state.wishes);
   const currentUser = useAppStore((state) => state.currentUser);
   const claimWish = useAppStore((state) => state.claimWish);
   const completeWish = useAppStore((state) => state.completeWish);
 
+  const highlightId = (router?.params?.highlight as string) || '';
+
   useDidShow(() => {
     console.log('[WishlistPage] Page did show');
+    if (highlightId) {
+      setTimeout(() => {
+        try { Taro.pageScrollTo({ selector: '#wish-' + highlightId, duration: 400 }); }
+        catch (e) { /* ignore */ }
+      }, 200);
+    }
   });
 
   const [filterType, setFilterType] = useState<FilterType>('all');
@@ -113,12 +122,17 @@ function WishlistPage() {
 
       {filteredWishes.length > 0 ? (
         filteredWishes.map((wish) => (
-          <WishCard
+          <View
             key={wish.id}
-            wish={wish}
-            onClaim={() => handleClaim(wish)}
-            onComplete={() => handleComplete(wish)}
-          />
+            id={'wish-' + wish.id}
+            className={classnames(wish.id === highlightId && styles.highlightWish)}
+          >
+            <WishCard
+              wish={wish}
+              onClaim={() => handleClaim(wish)}
+              onComplete={() => handleComplete(wish)}
+            />
+          </View>
         ))
       ) : (
         <EmptyState emoji="🌟" title="还没有愿望哦" description="点击右下角按钮添加愿望吧~" />

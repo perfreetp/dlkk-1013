@@ -281,3 +281,219 @@
   font-size: $font-size-xs;
   color: $color-text-tertiary;
 }
+
+.unreadBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin: -50rpx 24rpx $spacing-md;
+  background: linear-gradient(135deg, #FFE9F0, #FFF5F7);
+  border: 2rpx solid #FF6B9D33;
+  border-radius: $radius-lg;
+  padding: 24rpx 28rpx;
+  box-shadow: 0 8rpx 24rpx rgba(255,107,157,0.12);
+  position: relative;
+  z-index: 5;
+  animation: bannerFloat 2.4s ease-in-out infinite;
+}
+
+@keyframes bannerFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4rpx); }
+}
+
+.unreadBannerLeft {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+.unreadBannerIcon {
+  font-size: 48rpx;
+  line-height: 1;
+  animation: bellWiggle 1.6s ease-in-out infinite;
+  display: inline-block;
+  transform-origin: top center;
+}
+
+@keyframes bellWiggle {
+  0%, 70%, 100% { transform: rotate(0deg); }
+  75% { transform: rotate(-12deg); }
+  80% { transform: rotate(10deg); }
+  85% { transform: rotate(-8deg); }
+  90% { transform: rotate(6deg); }
+}
+
+.unreadBannerTitle {
+  display: block;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  color: #FF3B6B;
+  margin-bottom: 4rpx;
+}
+
+.unreadBannerSub {
+  display: block;
+  font-size: $font-size-xs;
+  color: #A3405A;
+}
+
+.unreadBannerArrow {
+  font-size: 56rpx;
+  font-weight: $font-weight-bold;
+  color: #FF6B9D;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.latestMemory {
+  margin-bottom: $spacing-md;
+  background: linear-gradient(160deg, #FFFBF7 0%, #FFF5F7 50%, #FFE9F0 100%);
+  border-radius: $radius-xl;
+  padding: 28rpx;
+  box-shadow: 0 12rpx 32rpx rgba(255,107,157,0.14);
+  border: 2rpx solid rgba(255,107,157,0.2);
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.latestMemoryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 22rpx;
+}
+
+.latestMemoryLabel {
+  display: block;
+  font-size: 30rpx;
+  font-weight: $font-weight-bold;
+  color: #FF3B6B;
+  margin-bottom: 8rpx;
+}
+
+.latestMemoryDate {
+  display: block;
+  font-size: 22rpx;
+  color: #A3405A;
+  font-weight: 500;
+}
+
+.latestMemoryBtn {
+  padding: 10rpx 20rpx;
+  background: rgba(255,255,255,0.8);
+  border-radius: 999rpx;
+  border: 2rpx solid rgba(255,107,157,0.3);
+}
+
+.latestMemoryRow {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  margin-bottom: 18rpx;
+  padding: 16rpx 18rpx;
+  background: rgba(255,255,255,0.65);
+  border-radius: $radius-lg;
+}
+
+.latestMemoryRow:last-child {
+  margin-bottom: 0;
+}
+
+.memoryMood {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.memoryAvatar {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #eee;
+  flex-shrink: 0;
+}
+
+.memoryMoodBubble {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 999rpx;
+  flex: 1;
+}
+
+.memoryAnniv {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  padding: 6rpx 0;
+}
+
+.memoryAnnivText {
+  font-size: 24rpx;
+  color: #7a5b20;
+  font-weight: 500;
+}
+
+.memoryDiary {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  padding: 6rpx 0;
+  border-bottom: 1rpx dashed rgba(255,107,157,0.15);
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.memoryDiaryTitle {
+  font-size: 26rpx;
+  font-weight: $font-weight-semibold;
+  color: #1f1d21;
+  display: block;
+}
+
+.memoryDiaryExcerpt {
+  font-size: 22rpx;
+  color: #6b616e;
+  margin-top: 2rpx;
+  display: block;
+}
+
+.memoryPhotos {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8rpx;
+  margin-top: 4rpx;
+  padding: 16rpx 18rpx;
+  background: rgba(255,255,255,0.65);
+  border-radius: $radius-lg;
+}
+
+.memoryPhoto {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 14rpx;
+  background: #fff;
+}
+
+.memoryPhotoMore {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 14rpx;
+  background: linear-gradient(135deg, #FF6B9D, #FF3B6B);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+

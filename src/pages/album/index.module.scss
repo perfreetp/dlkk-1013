@@ -233,3 +233,52 @@
   backdrop-filter: blur(10rpx);
 }
 
+.personTabs {
+  display: flex;
+  gap: 12rpx;
+  padding: 6rpx 0 24rpx;
+}
+
+.personTab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10rpx;
+  padding: 16rpx 12rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  border: 2rpx solid transparent;
+  transition: all 0.2s;
+}
+
+.personTabActive {
+  background: linear-gradient(135deg, #FFE9F0, #FFF5F7);
+  border: 2rpx solid #FF6B9D;
+  box-shadow: 0 4rpx 12rpx rgba(255,107,157,0.15);
+}
+
+.personTabAvatar {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #eee;
+}
+
+.personTabIcon {
+  font-size: 32rpx;
+  line-height: 1;
+}
+
+.personTabLabel {
+  font-size: 24rpx;
+  color: #6b616e;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.personTabLabelActive {
+  color: #FF3B6B;
+  font-weight: 700;
+}
+
