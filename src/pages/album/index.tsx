@@ -15,6 +15,9 @@ function AlbumPage() {
   const photoGroups = useAppStore((state) => state.photoGroups);
   const photos = useAppStore((state) => state.photos);
   const togglePhotoFavorite = useAppStore((state) => state.togglePhotoFavorite);
+  const addPhotos = useAppStore((state) => state.addPhotos);
+  const currentUser = useAppStore((state) => state.currentUser);
+  const refreshPhotoGroupStats = useAppStore((state) => state.refreshPhotoGroupStats);
 
   useDidShow(() => {
     console.log('[AlbumPage] Page did show');
@@ -46,6 +49,29 @@ function AlbumPage() {
     Taro.previewImage({
       current: photoUrl,
       urls: photos.map((p) => p.url)
+    });
+  };
+
+  const handleQuickUpload = (groupId: string, groupName: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    Taro.chooseImage({
+      count: 9,
+      success: (res) => {
+        const paths = res.tempFilePaths || (res as any).tempFiles?.map((f: any) => f.path) || [];
+        if (paths.length === 0) return;
+        const now = new Date().toISOString().replace('T', ' ').slice(0, 19);
+        const newPhotos = paths.map((p: string) => ({
+          id: `p-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+          url: p,
+          uploadedBy: currentUser.id,
+          uploadedAt: now,
+          isFavorite: false,
+          groupId
+        }));
+        addPhotos(newPhotos);
+        if (groupId) refreshPhotoGroupStats(groupId);
+        Taro.showToast({ title: `已添加${newPhotos.length}张到${groupName}`, icon: 'success' });
+      }
     });
   };
 
@@ -111,19 +137,39 @@ function AlbumPage() {
               {photoGroups.map((group) => (
                 <View
                   key={group.id}
-                  className={styles.groupCard}
+                  className={classnames(styles.groupCard, group.photoCount === 0 && styles.groupCardEmpty)}
                   onClick={() => handleGroupClick(group.id, group.name)}
                 >
                   <View className={styles.groupCover}>
-                    <Image
-                      src={group.cover}
-                      className={styles.groupCoverImg}
-                      mode="aspectFill"
-                    />
-                    <Text className={styles.groupCount}>{group.photoCount}张</Text>
+                    {group.photoCount > 0 ? (
+                      <>
+                        <Image
+                          src={group.cover}
+                          className={styles.groupCoverImg}
+                          mode="aspectFill"
+                        />
+                        <Text className={styles.groupCount}>{group.photoCount}张</Text>
+                      </>
+                    ) : (
+                      <View
+                        className={styles.groupEmptyCover}
+                        onClick={(e) => handleQuickUpload(group.id, group.name, e)}
+                      >
+                        <Text className={styles.groupEmptyIcon}>+</Text>
+                        <Text className={styles.groupEmptyText}>添加照片</Text>
+                      </View>
+                    )}
+                    {group.photoCount > 0 && (
+                      <View
+                        className={styles.groupQuickBtn}
+                        onClick={(e) => handleQuickUpload(group.id, group.name, e)}
+                      >
+                        <Text style={{ fontSize: '28rpx' }}>📤</Text>
+                      </View>
+                    )}
                   </View>
                   <View className={styles.groupInfo}>
-                    <Text className={styles.groupName}>{group.name}</Text>
+                    <Text className={styles.groupName} numberOfLines={1}>{group.name}</Text>
                     <Text className={styles.groupDate}>创建于 {formatDate(group.createdAt)}</Text>
                   </View>
                 </View>

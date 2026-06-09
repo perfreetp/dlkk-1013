@@ -1,0 +1,285 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FFF5F7 0%, #FFFFFF 260px);
+  padding: 20rpx 20rpx 120rpx;
+  box-sizing: border-box;
+}
+
+.header {
+  padding: 20rpx 10rpx 36rpx;
+}
+
+.headerTitle {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1f1d21;
+  display: block;
+  line-height: 1.3;
+}
+
+.headerSub {
+  font-size: 24rpx;
+  color: #9c93a0;
+  margin-top: 8rpx;
+  display: block;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+}
+
+.capsuleBlock {
+  display: flex;
+  gap: 18rpx;
+  margin-bottom: 36rpx;
+}
+
+.dateColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 36rpx;
+  padding-top: 20rpx;
+  flex-shrink: 0;
+}
+
+.dateDot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: #FFD0DD;
+  border: 5rpx solid #FF6B9D;
+  box-shadow: 0 0 0 8rpx #FFF5F7;
+  flex-shrink: 0;
+}
+
+.dateDotActive {
+  background: #FF6B9D;
+  box-shadow: 0 0 0 12rpx #FFE0E9;
+  transform: scale(1.2);
+}
+
+.dateLine {
+  flex: 1;
+  width: 3rpx;
+  background: linear-gradient(180deg, #FF6B9D, #FFD0DD 60%, transparent);
+  margin-top: 10rpx;
+  border-radius: 2rpx;
+}
+
+.capsuleCard {
+  flex: 1;
+  min-width: 0;
+  background: #fff;
+  border-radius: 28rpx;
+  padding: 28rpx;
+  box-shadow: 0 4rpx 16rpx rgba(31,29,33,0.05);
+}
+
+.capsuleHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16rpx;
+  margin-bottom: 18rpx;
+}
+
+.dateLabel {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1f1d21;
+  display: block;
+}
+
+.weekLabel {
+  font-size: 24rpx;
+  color: #a89ba9;
+  margin-top: 4rpx;
+  display: block;
+}
+
+.summaryBox {
+  background: linear-gradient(135deg, #FFE9F0, #FFF5F7);
+  padding: 10rpx 18rpx;
+  border-radius: 24rpx;
+  flex-shrink: 0;
+}
+
+.summaryText {
+  font-size: 22rpx;
+  color: #FF6B9D;
+  font-weight: 500;
+}
+
+.section {
+  margin-top: 22rpx;
+  padding-top: 22rpx;
+  border-top: 1rpx dashed #F0E5F0;
+}
+
+.section:first-of-type {
+  border-top: none;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.sectionTitleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14rpx;
+}
+
+.sectionTitle {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #4a414d;
+  margin-bottom: 14rpx;
+  display: block;
+}
+
+.sectionTitleRow .sectionTitle {
+  margin-bottom: 0;
+}
+
+.moreLink {
+  font-size: 24rpx;
+  color: #FF6B9D;
+  font-weight: 500;
+}
+
+.moodRow {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.moodItem {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10rpx;
+}
+
+.moodBubble {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 10rpx 20rpx;
+  border-radius: 30rpx;
+  border: 2rpx solid #eee;
+}
+
+.moodEmoji {
+  font-size: 28rpx;
+}
+
+.moodLabel {
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.moodUser {
+  font-size: 22rpx;
+  color: #6b616e;
+}
+
+.moodNote {
+  flex-basis: 100%;
+  font-size: 24rpx;
+  color: #6b616e;
+  padding-left: 8rpx;
+}
+
+.annivRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.annivItem {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  background: linear-gradient(135deg, #FFF9E6, #FFFBF5);
+  padding: 12rpx 22rpx;
+  border-radius: 20rpx;
+}
+
+.annivEmoji {
+  font-size: 30rpx;
+}
+
+.annivTitle {
+  font-size: 24rpx;
+  color: #7a5b20;
+  font-weight: 500;
+}
+
+.diaryItem {
+  background: #FAF6FB;
+  border-radius: 16rpx;
+  padding: 18rpx 20rpx;
+  margin-bottom: 12rpx;
+}
+
+.diaryItem:last-child {
+  margin-bottom: 0;
+}
+
+.diaryHeader {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-bottom: 8rpx;
+}
+
+.diaryTitle {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1f1d21;
+  flex: 1;
+  min-width: 0;
+}
+
+.diaryAuthor {
+  font-size: 22rpx;
+  color: #a89ba9;
+  flex-shrink: 0;
+}
+
+.diaryExcerpt {
+  font-size: 24rpx;
+  color: #6b616e;
+  line-height: 1.6;
+}
+
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10rpx;
+}
+
+.photoThumb {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 14rpx;
+  background: #f3eef5;
+}
+
+.photoMore {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 14rpx;
+  background: linear-gradient(135deg, #FFE9F0, #FF6B9D);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photoMoreText {
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 700;
+}

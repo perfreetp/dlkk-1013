@@ -218,3 +218,66 @@
   font-size: $font-size-xs;
   color: $color-text-tertiary;
 }
+
+.collabRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.collabCard {
+  position: relative;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  min-height: 180rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  transition: all 0.2s;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.collabBadge {
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  min-width: 36rpx;
+  height: 36rpx;
+  padding: 0 10rpx;
+  background: #FF3B6B;
+  border-radius: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 10rpx rgba(255,59,107,0.35);
+  z-index: 1;
+}
+
+.collabBadgeText {
+  color: #fff;
+  font-size: 22rpx;
+  font-weight: $font-weight-bold;
+  line-height: 1;
+}
+
+.collabIcon {
+  font-size: 48rpx;
+  line-height: 1;
+}
+
+.collabTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.collabSub {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}

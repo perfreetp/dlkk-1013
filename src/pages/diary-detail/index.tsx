@@ -25,6 +25,7 @@ function DiaryDetailPage() {
   const [showUnlockModal, setShowUnlockModal] = useState(!isUnlocked && !!diary?.isPrivate);
   const [lockInput, setLockInput] = useState('');
   const [showHistory, setShowHistory] = useState(false);
+  const [expandedRecordId, setExpandedRecordId] = useState<string | null>(null);
 
   if (!diary) {
     return (
@@ -308,61 +309,245 @@ function DiaryDetailPage() {
               </Text>
             </View>
             <ScrollView scrollY style={{ flex: 1, padding: '16rpx 32rpx 32rpx' }}>
-              {diary.editHistory.map((record) => (
-                <View
-                  key={record.id}
-                  style={{
-                    padding: '24rpx',
-                    background: '#FFF7FA',
-                    borderRadius: '16rpx',
-                    marginBottom: '16rpx',
-                    borderLeft: '6rpx solid #FF6B9D'
-                  }}
-                >
+              {diary.editHistory.map((record) => {
+                const isExpanded = expandedRecordId === record.id;
+                const hasDiff = record.before && record.after;
+                return (
                   <View
+                    key={record.id}
                     style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      marginBottom: '12rpx'
+                      padding: '24rpx',
+                      background: '#FFF7FA',
+                      borderRadius: '16rpx',
+                      marginBottom: '16rpx',
+                      borderLeft: '6rpx solid #FF6B9D'
                     }}
                   >
-                    <Text style={{ fontSize: '28rpx', fontWeight: 'bold', color: '#1D2129' }}>
-                      👤 {record.editorName}
-                    </Text>
-                    <Text style={{ fontSize: '22rpx', color: '#86909C' }}>
-                      {record.editedAt}
-                    </Text>
-                  </View>
-                  <Text style={{ fontSize: '26rpx', color: '#4E5969' }}>{record.summary}</Text>
-                  <View style={{ display: 'flex', flexWrap: 'wrap', gap: '12rpx', marginTop: '12rpx' }}>
-                    {record.fieldsChanged.map((f) => (
+                    <View
+                      onClick={() => hasDiff && setExpandedRecordId(isExpanded ? null : record.id)}
+                      style={{ cursor: hasDiff ? 'pointer' : 'default' }}
+                    >
                       <View
-                        key={f}
                         style={{
-                          padding: '6rpx 16rpx',
-                          background: '#FFE4EE',
-                          borderRadius: '999rpx',
-                          fontSize: '22rpx',
-                          color: '#FF6B9D'
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          marginBottom: '12rpx'
                         }}
                       >
-                        {f === 'title'
-                          ? '标题'
-                          : f === 'content'
-                          ? '正文'
-                          : f === 'isPrivate'
-                          ? '私密状态'
-                          : f === 'tags'
-                          ? '标签'
-                          : f === 'images'
-                          ? '图片'
-                          : '共同编辑'}
+                        <Text style={{ fontSize: '28rpx', fontWeight: 'bold', color: '#1D2129' }}>
+                          👤 {record.editorName}
+                        </Text>
+                        <Text style={{ fontSize: '22rpx', color: '#86909C' }}>
+                          {record.editedAt}
+                        </Text>
                       </View>
-                    ))}
+                      <Text style={{ fontSize: '26rpx', color: '#4E5969' }}>{record.summary}</Text>
+                      {record.notifyPartner === false && (
+                        <Text
+                          style={{
+                            display: 'inline-block',
+                            marginTop: '10rpx',
+                            fontSize: '22rpx',
+                            color: '#86909C',
+                            padding: '4rpx 14rpx',
+                            background: '#F2F3F5',
+                            borderRadius: '999rpx'
+                          }}
+                        >
+                          🔕 静默保存
+                        </Text>
+                      )}
+                      <View
+                        style={{
+                          display: 'flex',
+                          flexWrap: 'wrap',
+                          gap: '12rpx',
+                          marginTop: '12rpx'
+                        }}
+                      >
+                        {record.fieldsChanged.map((f) => (
+                          <View
+                            key={f}
+                            style={{
+                              padding: '6rpx 16rpx',
+                              background: '#FFE4EE',
+                              borderRadius: '999rpx',
+                              fontSize: '22rpx',
+                              color: '#FF6B9D'
+                            }}
+                          >
+                            {f === 'title'
+                              ? '标题'
+                              : f === 'content'
+                              ? '正文'
+                              : f === 'isPrivate'
+                              ? '私密状态'
+                              : f === 'tags'
+                              ? '标签'
+                              : f === 'images'
+                              ? '图片'
+                              : '共同编辑'}
+                          </View>
+                        ))}
+                        {hasDiff && (
+                          <Text
+                            style={{
+                              marginLeft: 'auto',
+                              fontSize: '22rpx',
+                              color: '#FF6B9D',
+                              fontWeight: '500'
+                            }}
+                          >
+                            {isExpanded ? '收起对比 ▲' : '查看改动对比 ▼'}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                    {isExpanded && hasDiff && (
+                      <View style={{ marginTop: '20rpx' }}>
+                        <View
+                          style={{
+                            display: 'grid',
+                            gridTemplateColumns: '1fr 1fr',
+                            gap: '12rpx'
+                          }}
+                        >
+                          <View
+                            style={{
+                              background: '#FAFBFC',
+                              padding: '18rpx',
+                              borderRadius: '12rpx',
+                              border: '1rpx solid #E5E6EB'
+                            }}
+                          >
+                            <Text
+                              style={{
+                                fontSize: '22rpx',
+                                color: '#86909C',
+                                fontWeight: '600',
+                                display: 'block',
+                                marginBottom: '10rpx'
+                              }}
+                            >
+                              修改前
+                            </Text>
+                            {record.fieldsChanged.map((f) => (
+                              <View
+                                key={f}
+                                style={{ marginBottom: '10rpx' }}
+                              >
+                                <Text
+                                  style={{
+                                    fontSize: '20rpx',
+                                    color: '#86909C',
+                                    display: 'block'
+                                  }}
+                                >
+                                  {f === 'title'
+                                    ? '标题'
+                                    : f === 'content'
+                                    ? '正文'
+                                    : f === 'isPrivate'
+                                    ? '私密'
+                                    : f === 'tags'
+                                    ? '标签'
+                                    : f === 'images'
+                                    ? '图片'
+                                    : '共同编辑'}
+                                </Text>
+                                <Text
+                                  style={{
+                                    fontSize: '24rpx',
+                                    color: '#4E5969',
+                                    lineHeight: 1.4
+                                  }}
+                                  numberOfLines={3}
+                                >
+                                  {f === 'isPrivate'
+                                    ? record.before!.isPrivate
+                                      ? '🔒 私密'
+                                      : '💑 共同可见'
+                                    : f === 'tags'
+                                    ? (record.before!.tags || []).join('、') || '(无)'
+                                    : f === 'images'
+                                    ? `${(record.before!.images || []).length} 张`
+                                    : (record.before as any)[f] || '(空)'}
+                                </Text>
+                              </View>
+                            ))}
+                          </View>
+                          <View
+                            style={{
+                              background: '#FFF5F7',
+                              padding: '18rpx',
+                              borderRadius: '12rpx',
+                              border: '1rpx solid #FFE0E9'
+                            }}
+                          >
+                            <Text
+                              style={{
+                                fontSize: '22rpx',
+                                color: '#FF6B9D',
+                                fontWeight: '600',
+                                display: 'block',
+                                marginBottom: '10rpx'
+                              }}
+                            >
+                              修改后
+                            </Text>
+                            {record.fieldsChanged.map((f) => (
+                              <View
+                                key={f}
+                                style={{ marginBottom: '10rpx' }}
+                              >
+                                <Text
+                                  style={{
+                                    fontSize: '20rpx',
+                                    color: '#FF6B9D',
+                                    display: 'block'
+                                  }}
+                                >
+                                  {f === 'title'
+                                    ? '标题'
+                                    : f === 'content'
+                                    ? '正文'
+                                    : f === 'isPrivate'
+                                    ? '私密'
+                                    : f === 'tags'
+                                    ? '标签'
+                                    : f === 'images'
+                                    ? '图片'
+                                    : '共同编辑'}
+                                </Text>
+                                <Text
+                                  style={{
+                                    fontSize: '24rpx',
+                                    color: '#1D2129',
+                                    lineHeight: 1.4,
+                                    fontWeight: '500'
+                                  }}
+                                  numberOfLines={3}
+                                >
+                                  {f === 'isPrivate'
+                                    ? record.after!.isPrivate
+                                      ? '🔒 私密'
+                                      : '💑 共同可见'
+                                    : f === 'tags'
+                                    ? (record.after!.tags || []).join('、') || '(无)'
+                                    : f === 'images'
+                                    ? `${(record.after!.images || []).length} 张`
+                                    : (record.after as any)[f] || '(空)'}
+                                </Text>
+                              </View>
+                            ))}
+                          </View>
+                        </View>
+                      </View>
+                    )}
                   </View>
-                </View>
-              ))}
+                );
+              })}
             </ScrollView>
           </View>
         </View>

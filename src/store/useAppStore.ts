@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import Taro from '@tarojs/taro';
 import type {
   Couple, Diary, Photo, PhotoGroup, Anniversary, Wish, Letter, MoodRecord, Settings, User,
-  DiaryEditRecord, DiaryFieldChanged
+  DiaryEditRecord, DiaryFieldChanged, ActivityRecord, DiaryEditSnapshot
 } from '@/types';
 import {
   mockCouple, mockDiaries, mockPhotos, mockPhotoGroups,
@@ -21,6 +21,7 @@ export interface PersistedData {
   wishes: Wish[];
   letters: Letter[];
   moodRecords: MoodRecord[];
+  activities: ActivityRecord[];
   settings: Settings;
   initializedAt: string;
 }
@@ -51,6 +52,7 @@ const saveToStorage = (state: Partial<PersistedData>) => {
       wishes: state.wishes || mockWishes,
       letters: state.letters || mockLetters,
       moodRecords: state.moodRecords || mockMoodRecords,
+      activities: state.activities || [],
       settings: state.settings || { isLocked: false, backupFrequency: 'weekly', isSealed: false },
       initializedAt: new Date().toISOString()
     };
@@ -59,6 +61,17 @@ const saveToStorage = (state: Partial<PersistedData>) => {
   } catch (e) {
     console.error('[Store] Failed to save to storage:', e);
   }
+};
+
+const takeSnapshot = (d: Diary, fields: DiaryFieldChanged[]): DiaryEditSnapshot => {
+  const snap: DiaryEditSnapshot = {};
+  if (fields.includes('title')) snap.title = d.title;
+  if (fields.includes('content')) snap.content = d.content;
+  if (fields.includes('isPrivate')) snap.isPrivate = d.isPrivate;
+  if (fields.includes('tags')) snap.tags = d.tags ? [...d.tags] : [];
+  if (fields.includes('images')) snap.images = d.images ? [...d.images] : [];
+  if (fields.includes('coEditors')) snap.coEditors = d.coEditors ? [...d.coEditors] : [];
+  return snap;
 };
 
 const processScheduledLetters = (letters: Letter[]): Letter[] => {
@@ -112,6 +125,7 @@ interface AppState {
   wishes: Wish[];
   letters: Letter[];
   moodRecords: MoodRecord[];
+  activities: ActivityRecord[];
   settings: Settings;
   selectedTab: string;
   isStorageLoaded: boolean;
@@ -121,14 +135,31 @@ interface AppState {
   setCurrentUser: (user: User) => void;
   switchUser: (userId: string) => void;
   addDiary: (diary: Diary) => void;
-  updateDiary: (id: string, diary: Partial<Diary>, editorId?: string, editorName?: string) => void;
+  updateDiary: (
+    id: string,
+    diary: Partial<Diary>,
+    editorId?: string,
+    editorName?: string,
+    notifyPartner?: boolean
+  ) => void;
   deleteDiary: (id: string) => void;
   unlockPrivateDiary: (id: string) => void;
   isPrivateDiaryUnlocked: (id: string) => boolean;
 
+  addActivity: (
+    type: ActivityRecord['type'],
+    actor: User,
+    targetId: string,
+    targetTitle: string,
+    detail?: string
+  ) => void;
+  markActivityRead: (id: string, userId: string) => void;
+  markAllActivitiesRead: (userId: string) => void;
+  getUnreadActivityCount: (userId: string) => number;
+
   addPhoto: (photo: Photo) => void;
   addPhotos: (photos: Photo[]) => void;
-  togglePhotoFavorite: (id: string) => void;
+  togglePhotoFavorite: (id: string) => Photo | undefined;
   updatePhotoGroup: (id: string, patch: Partial<PhotoGroup>) => void;
   refreshPhotoGroupStats: (groupId?: string) => void;
 
@@ -136,7 +167,7 @@ interface AppState {
   updateAnniversary: (id: string, anniv: Partial<Anniversary>) => void;
   deleteAnniversary: (id: string) => void;
   addWish: (wish: Wish) => void;
-  claimWish: (id: string, userId: string, userName: string) => void;
+  claimWish: (id: string, userId: string, userName: string) => Wish | undefined;
   completeWish: (id: string) => void;
   deleteWish: (id: string) => void;
   addLetter: (letter: Letter) => void;
@@ -164,6 +195,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   wishes: persisted.wishes || mockWishes,
   letters: initialLetters,
   moodRecords: persisted.moodRecords || mockMoodRecords,
+  activities: persisted.activities || [],
   settings: persisted.settings || {
     isLocked: false,
     backupFrequency: 'weekly',
@@ -186,6 +218,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       wishes: s.wishes,
       letters: s.letters,
       moodRecords: s.moodRecords,
+      activities: s.activities,
       settings: s.settings
     });
   },
@@ -209,14 +242,18 @@ export const useAppStore = create<AppState>((set, get) => ({
     get().forcePersist();
   },
 
-  updateDiary: (id, patch, editorId, editorName) => {
+  updateDiary: (id, patch, editorId, editorName, notifyPartner = true) => {
     const state = get();
     const original = state.diaries.find((d) => d.id === id);
     if (!original) return;
     const fields = computeDiaryDiff(original, patch);
     let newEditHistory: DiaryEditRecord[] = original.editHistory ? [...original.editHistory] : [];
+    let diaryEditedDetail: string | undefined;
     if (fields.length > 0 && editorId && editorName) {
+      const before = takeSnapshot(original, fields);
       const summary = fields.map((f) => fieldLabel[f]).join('、');
+      const applied: Diary = { ...original, ...patch };
+      const after = takeSnapshot(applied, fields);
       newEditHistory = [
         {
           id: genId(),
@@ -224,10 +261,14 @@ export const useAppStore = create<AppState>((set, get) => ({
           editorName,
           editedAt: nowString(),
           fieldsChanged: fields,
-          summary: `修改了${summary}`
+          summary: `修改了${summary}`,
+          before,
+          after,
+          notifyPartner
         },
         ...newEditHistory
       ];
+      diaryEditedDetail = `修改了${summary}`;
     }
     set((s) => ({
       diaries: s.diaries.map((d) =>
@@ -236,6 +277,19 @@ export const useAppStore = create<AppState>((set, get) => ({
           : d
       )
     }));
+    if (fields.length > 0 && editorId && editorName && notifyPartner && diaryEditedDetail) {
+      const { couple, currentUser } = get();
+      const editor =
+        couple.user1.id === editorId
+          ? couple.user1
+          : couple.user2.id === editorId
+            ? couple.user2
+            : currentUser;
+      const updatedDiary = get().diaries.find((d) => d.id === id);
+      if (updatedDiary && !updatedDiary.isPrivate) {
+        get().addActivity('diary_edited', editor, id, updatedDiary.title, diaryEditedDetail);
+      }
+    }
     get().forcePersist();
   },
 
@@ -256,6 +310,47 @@ export const useAppStore = create<AppState>((set, get) => ({
     return get().unlockedPrivateDiaryIds.includes(id);
   },
 
+  addActivity: (type, actor, targetId, targetTitle, detail) => {
+    const activity: ActivityRecord = {
+      id: genId(),
+      type,
+      actorId: actor.id,
+      actorName: actor.name,
+      actorAvatar: actor.avatar,
+      targetId,
+      targetTitle,
+      detail,
+      createdAt: nowString(),
+      readBy: [actor.id]
+    };
+    set((state) => ({ activities: [activity, ...state.activities] }));
+  },
+
+  markActivityRead: (id, userId) => {
+    set((state) => ({
+      activities: state.activities.map((a) =>
+        a.id === id
+          ? { ...a, readBy: a.readBy.includes(userId) ? a.readBy : [...a.readBy, userId] }
+          : a
+      )
+    }));
+    get().forcePersist();
+  },
+
+  markAllActivitiesRead: (userId) => {
+    set((state) => ({
+      activities: state.activities.map((a) => ({
+        ...a,
+        readBy: a.readBy.includes(userId) ? a.readBy : [...a.readBy, userId]
+      }))
+    }));
+    get().forcePersist();
+  },
+
+  getUnreadActivityCount: (userId) => {
+    return get().activities.filter((a) => !a.readBy.includes(userId) && a.actorId !== userId).length;
+  },
+
   addPhoto: (photo) => {
     set((state) => ({ photos: [photo, ...state.photos] }));
     if (photo.groupId) get().refreshPhotoGroupStats(photo.groupId);
@@ -264,20 +359,64 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   addPhotos: (photos) => {
     if (photos.length === 0) return;
+    const s = get();
     set((state) => ({ photos: [...photos, ...state.photos] }));
     const groupIds = Array.from(new Set(photos.map((p) => p.groupId).filter(Boolean) as string[]));
     if (groupIds.length > 0) {
       groupIds.forEach((gid) => get().refreshPhotoGroupStats(gid));
-    } else {
-      get().forcePersist();
     }
+    const { currentUser, couple, photoGroups } = get();
+    const byId = photos[0].uploadedBy;
+    const actor =
+      couple.user1.id === byId
+        ? couple.user1
+        : couple.user2.id === byId
+          ? couple.user2
+          : currentUser;
+    const g = photos[0].groupId
+      ? photoGroups.find((grp) => grp.id === photos[0].groupId)
+      : undefined;
+    const title = g ? `相册「${g.name}」` : '相册';
+    get().addActivity(
+      'photo_uploaded',
+      actor,
+      photos[0].groupId || 'all-photos',
+      title,
+      `上传了${photos.length}张照片`
+    );
+    if (groupIds.length === 0) get().forcePersist();
   },
 
   togglePhotoFavorite: (id) => {
-    set((state) => ({
-      photos: state.photos.map((p) => (p.id === id ? { ...p, isFavorite: !p.isFavorite } : p))
-    }));
+    let updated: Photo | undefined;
+    set((state) => {
+      const mapped = state.photos.map((p) => {
+        if (p.id === id) {
+          updated = { ...p, isFavorite: !p.isFavorite };
+          return updated;
+        }
+        return p;
+      });
+      return { photos: mapped };
+    });
+    if (updated) {
+      const { currentUser, couple } = get();
+      const actor =
+        couple.user1.id === updated.uploadedBy
+          ? couple.user1
+          : couple.user2.id === updated.uploadedBy
+            ? couple.user2
+            : currentUser;
+      get().addActivity(
+        'photo_favorited',
+        actor,
+        id,
+        updated.isFavorite ? '收藏了一张照片' : '取消了一张照片的收藏',
+        updated.description || ''
+      );
+    }
     get().forcePersist();
+    return updated;
   },
 
   updatePhotoGroup: (id, patch) => {
@@ -328,12 +467,35 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   claimWish: (id, userId, userName) => {
-    set((state) => ({
-      wishes: state.wishes.map((w) =>
-        w.id === id ? { ...w, claimedBy: userId, claimedByName: userName, status: 'claimed' } : w
-      )
-    }));
+    let claimed: Wish | undefined;
+    set((state) => {
+      const mapped = state.wishes.map((w) => {
+        if (w.id === id) {
+          claimed = { ...w, claimedBy: userId, claimedByName: userName, status: 'claimed' };
+          return claimed;
+        }
+        return w;
+      });
+      return { wishes: mapped };
+    });
+    if (claimed) {
+      const { currentUser, couple } = get();
+      const actor =
+        couple.user1.id === userId
+          ? couple.user1
+          : couple.user2.id === userId
+            ? couple.user2
+            : currentUser;
+      get().addActivity(
+        'wish_claimed',
+        actor,
+        id,
+        claimed.title,
+        `${actor.name} 认领了愿望，正在为你努力实现~`
+      );
+    }
     get().forcePersist();
+    return claimed;
   },
 
   completeWish: (id) => {
@@ -362,17 +524,37 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   markLetterRead: (id) => {
-    set((state) => ({
-      letters: state.letters.map((l) =>
-        l.id === id
-          ? {
-              ...l,
-              isRead: true,
-              readAt: nowString()
-            }
-          : l
-      )
-    }));
+    let letter: Letter | undefined;
+    set((state) => {
+      const mapped = state.letters.map((l) => {
+        if (l.id === id && !l.isRead) {
+          letter = {
+            ...l,
+            isRead: true,
+            readAt: nowString()
+          };
+          return letter;
+        }
+        return l;
+      });
+      return { letters: mapped };
+    });
+    if (letter) {
+      const { currentUser, couple } = get();
+      const reader =
+        couple.user1.id === letter.toUserId
+          ? couple.user1
+          : couple.user2.id === letter.toUserId
+            ? couple.user2
+            : currentUser;
+      get().addActivity(
+        'letter_read',
+        reader,
+        id,
+        letter.title,
+        `${reader.name} 阅读了你写的信`
+      );
+    }
     get().forcePersist();
   },
 
@@ -416,6 +598,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       wishes: s.wishes,
       letters: s.letters,
       moodRecords: s.moodRecords,
+      activities: s.activities,
       settings: s.settings,
       initializedAt: new Date().toISOString()
     };
@@ -433,6 +616,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       wishes: data.wishes || [],
       letters: processScheduledLetters(data.letters || []),
       moodRecords: data.moodRecords || [],
+      activities: data.activities || [],
       settings: data.settings || { isLocked: false, backupFrequency: 'weekly', isSealed: false },
       unlockedPrivateDiaryIds: [],
       hasVerifiedAccess: false

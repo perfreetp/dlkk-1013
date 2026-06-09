@@ -18,8 +18,10 @@ function HomePage() {
   const anniversaries = useAppStore((state) => state.anniversaries);
   const moodRecords = useAppStore((state) => state.moodRecords);
   const diaries = useAppStore((state) => state.diaries);
+  const photos = useAppStore((state) => state.photos);
   const addMoodRecord = useAppStore((state) => state.addMoodRecord);
   const processAllScheduledLetters = useAppStore((state) => state.processAllScheduledLetters);
+  const getUnreadActivityCount = useAppStore((state) => state.getUnreadActivityCount);
 
   useDidShow(() => {
     console.log('[HomePage] Page did show');
@@ -69,6 +71,33 @@ function HomePage() {
     .slice(0, 3);
 
   const latestDiary = diaries[0];
+  const unreadActivity = getUnreadActivityCount(currentUser.id);
+
+  const latestCapsuleDate = useMemo(() => {
+    const dates = new Set<string>();
+    diaries.forEach((d) => {
+      const s = d.createdAt;
+      if (s) dates.add(s.replace(/-/g, '/').slice(0, 10).replace(/\//g, '-'));
+    });
+    photos.forEach((p) => {
+      const s = p.uploadedAt;
+      if (s) dates.add(s.replace(/-/g, '/').slice(0, 10).replace(/\//g, '-'));
+    });
+    moodRecords.forEach((m) => dates.add(m.date));
+    const sorted = Array.from(dates).sort((a, b) => (a < b ? 1 : -1));
+    return sorted[0] || '';
+  }, [diaries, photos, moodRecords]);
+
+  const handleActivity = () => {
+    Taro.navigateTo({ url: '/pages/activity/index' });
+  };
+
+  const handleTimeCapsule = () => {
+    const url = latestCapsuleDate
+      ? `/pages/time-capsule/index?date=${latestCapsuleDate}`
+      : '/pages/time-capsule/index';
+    Taro.navigateTo({ url });
+  };
 
   return (
     <ScrollView scrollY className={styles.container} refresherEnabled>
@@ -118,6 +147,30 @@ function HomePage() {
       <SectionHeader title="快捷入口" showMore={false} />
       <View className={styles.quickCard}>
         <QuickEntryGrid />
+      </View>
+
+      <View className={styles.collabRow}>
+        <View className={styles.collabCard} onClick={handleActivity}>
+          {unreadActivity > 0 && (
+            <View className={styles.collabBadge}>
+              <Text className={styles.collabBadgeText}>
+                {unreadActivity > 99 ? '99+' : unreadActivity}
+              </Text>
+            </View>
+          )}
+          <Text className={styles.collabIcon}>💫</Text>
+          <Text className={styles.collabTitle}>动态中心</Text>
+          <Text className={styles.collabSub}>
+            {unreadActivity > 0 ? `${unreadActivity}条新动态` : '暂无新动态'}
+          </Text>
+        </View>
+        <View className={styles.collabCard} onClick={handleTimeCapsule}>
+          <Text className={styles.collabIcon}>🗓️</Text>
+          <Text className={styles.collabTitle}>时间胶囊</Text>
+          <Text className={styles.collabSub}>
+            {latestCapsuleDate ? `${latestCapsuleDate.slice(5)} 最新回忆` : '快来创造回忆吧'}
+          </Text>
+        </View>
       </View>
 
       <SectionHeader

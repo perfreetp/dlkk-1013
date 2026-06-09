@@ -1,0 +1,158 @@
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #FFF5F7 0%, #FFFFFF 300px);
+  padding: 20rpx 24rpx 120rpx;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 10rpx 30rpx;
+}
+
+.headerTitle {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1f1d21;
+  display: block;
+  line-height: 1.3;
+}
+
+.headerSub {
+  font-size: 24rpx;
+  color: #9c93a0;
+  margin-top: 8rpx;
+  display: block;
+}
+
+.markAllBtn {
+  background: linear-gradient(135deg, #FF6B9D, #FF9BB5);
+  padding: 14rpx 28rpx;
+  border-radius: 40rpx;
+  box-shadow: 0 6rpx 18rpx rgba(255,107,157,0.25);
+}
+
+.markAllText {
+  color: #fff;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.activityItem {
+  position: relative;
+  display: flex;
+  gap: 22rpx;
+  padding: 28rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(31,29,33,0.04);
+  transition: all 0.2s;
+}
+
+.activityItem:active {
+  transform: scale(0.98);
+  background: #FFFBFC;
+}
+
+.unread {
+  background: #FFF5F7;
+  border: 2rpx solid #FF6B9D33;
+}
+
+.redDot {
+  position: absolute;
+  top: 24rpx;
+  right: 24rpx;
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: #FF3B6B;
+  box-shadow: 0 0 0 6rpx #FFE0E9;
+}
+
+.iconBox {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activityIcon {
+  font-size: 44rpx;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  padding-right: 30rpx;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.typeLabel {
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.timeText {
+  font-size: 22rpx;
+  color: #a89ba9;
+  flex-shrink: 0;
+}
+
+.actorRow {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  flex-wrap: wrap;
+}
+
+.avatar {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #eee;
+}
+
+.actorName {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1f1d21;
+}
+
+.actionText {
+  font-size: 24rpx;
+  color: #6b616e;
+}
+
+.targetBox {
+  margin-top: 4rpx;
+  background: #FAF6FB;
+  border-radius: 12rpx;
+  padding: 14rpx 18rpx;
+}
+
+.targetTitle {
+  font-size: 26rpx;
+  color: #4a414d;
+  font-weight: 500;
+}

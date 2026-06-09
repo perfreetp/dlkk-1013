@@ -14,6 +14,7 @@ function DiaryPage() {
   const currentUser = useAppStore((state) => state.currentUser);
   const settings = useAppStore((state) => state.settings);
   const unlockPrivateDiary = useAppStore((state) => state.unlockPrivateDiary);
+  const unlockedPrivateDiaryIds = useAppStore((state) => state.unlockedPrivateDiaryIds);
 
   useDidShow(() => {
     console.log('[DiaryPage] Page did show');
@@ -24,14 +25,25 @@ function DiaryPage() {
   const [lockInput, setLockInput] = useState('');
   const [pendingDiary, setPendingDiary] = useState<Diary | null>(null);
 
+  const hasUnlockedPrivate = useMemo(() => {
+    const privateDiaries = diaries.filter((d) => d.isPrivate);
+    if (privateDiaries.length === 0) return false;
+    return privateDiaries.every((d) => unlockedPrivateDiaryIds.includes(d.id));
+  }, [diaries, unlockedPrivateDiaryIds]);
+
   const allTags = useMemo(() => {
     const tags = new Set<string>();
     tags.add('全部');
     tags.add('我的');
-    tags.add('私密 🔒');
-    diaries.forEach((d) => d.tags.forEach((t) => tags.add(t)));
-    return Array.from(tags);
-  }, [diaries]);
+    diaries.forEach((d) => {
+      const isPrivate = d.isPrivate;
+      const visible = !isPrivate || unlockedPrivateDiaryIds.includes(d.id);
+      if (visible) d.tags.forEach((t) => tags.add(t));
+    });
+    const arr = Array.from(tags);
+    if (hasUnlockedPrivate) arr.splice(2, 0, '私密 🔒');
+    return arr;
+  }, [diaries, unlockedPrivateDiaryIds, hasUnlockedPrivate]);
 
   const filteredDiaries = useMemo(() => {
     return diaries.filter((diary) => {

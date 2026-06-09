@@ -26,6 +26,15 @@ export interface MoodRecord {
 
 export type DiaryFieldChanged = 'title' | 'content' | 'isPrivate' | 'tags' | 'images' | 'coEditors';
 
+export interface DiaryEditSnapshot {
+  title?: string;
+  content?: string;
+  isPrivate?: boolean;
+  tags?: string[];
+  images?: string[];
+  coEditors?: string[];
+}
+
 export interface DiaryEditRecord {
   id: string;
   editorId: string;
@@ -33,6 +42,29 @@ export interface DiaryEditRecord {
   editedAt: string;
   fieldsChanged: DiaryFieldChanged[];
   summary: string;
+  before?: DiaryEditSnapshot;
+  after?: DiaryEditSnapshot;
+  notifyPartner?: boolean;
+}
+
+export type ActivityType =
+  | 'diary_edited'
+  | 'photo_uploaded'
+  | 'photo_favorited'
+  | 'wish_claimed'
+  | 'letter_read';
+
+export interface ActivityRecord {
+  id: string;
+  type: ActivityType;
+  actorId: string;
+  actorName: string;
+  actorAvatar: string;
+  targetId: string;
+  targetTitle: string;
+  detail?: string;
+  createdAt: string;
+  readBy: string[];
 }
 
 export interface Diary {

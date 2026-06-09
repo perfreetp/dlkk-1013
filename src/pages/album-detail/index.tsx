@@ -103,7 +103,17 @@ function AlbumDetailPage() {
         </View>
       ) : (
         <View style={{ marginBottom: '32rpx' }}>
-          <EmptyState emoji="📷" title="这个分组还没有照片" description="点击下方按钮添加照片吧~" />
+          <EmptyState
+            emoji="📷"
+            title="这个分组还没有照片"
+            description="点击下方按钮添加第一张照片吧~"
+          />
+          <Button
+            className={styles.primaryUploadBtn}
+            onClick={handleUpload}
+          >
+            📤 添加第一张照片
+          </Button>
         </View>
       )}
     </ScrollView>

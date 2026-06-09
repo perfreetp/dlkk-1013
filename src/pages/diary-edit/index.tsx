@@ -32,6 +32,7 @@ function DiaryEditPage() {
   const [customTag, setCustomTag] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const [allowCoEdit, setAllowCoEdit] = useState(true);
+  const [notifyPartner, setNotifyPartner] = useState(true);
   const [mood] = useState<MoodType>('love');
   const [images] = useState<string[]>([]);
 
@@ -83,7 +84,7 @@ function DiaryEditPage() {
     };
 
     if (isEditMode && editingDiary) {
-      updateDiary(editingDiary.id, diaryData, currentUser.id, currentUser.name);
+      updateDiary(editingDiary.id, diaryData, currentUser.id, currentUser.name, notifyPartner);
       Taro.showToast({ title: '日记已更新 💝', icon: 'success' });
     } else {
       const newDiary: Diary = {
@@ -231,6 +232,40 @@ function DiaryEditPage() {
           </View>
         </View>
       </View>
+
+      {isEditMode && (
+        <View className={styles.coEditorCard}>
+          <Text className={styles.sectionLabel}>🔔 改动通知</Text>
+          <View
+            className={classnames(styles.privacyOption, notifyPartner && styles.active)}
+            onClick={() => setNotifyPartner(!notifyPartner)}
+          >
+            <View
+              className={styles.coEditorAvatar}
+              style={{
+                background: notifyPartner ? '#FFE9F0' : '#F3EFF5',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '32rpx'
+              }}
+            >
+              {notifyPartner ? '🔔' : '🔕'}
+            </View>
+            <View className={styles.privacyInfo}>
+              <Text className={styles.privacyTitle}>
+                {notifyPartner ? `将通知 ${otherUser.name}` : '静默保存，不通知'}
+              </Text>
+              <Text className={styles.privacyDesc}>
+                {notifyPartner ? '对方会在动态中心看到此次改动' : '仅保存记录，不生成动态'}
+              </Text>
+            </View>
+            <View className={classnames(styles.checkbox, notifyPartner && styles.active)}>
+              {notifyPartner && <Text className={styles.checkmark}>✓</Text>}
+            </View>
+          </View>
+        </View>
+      )}
 
       <View className={styles.bottomBar}>
         <Button className={styles.cancelBtn} onClick={handleCancel}>

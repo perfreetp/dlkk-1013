@@ -151,3 +151,17 @@
   font-size: $font-size-xs;
   color: $color-text-tertiary;
 }
+
+.primaryUploadBtn {
+  margin: 20rpx 40rpx 0 !important;
+  background: linear-gradient(135deg, #FF6B9D, #FF9BB5) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 16rpx !important;
+  height: 88rpx !important;
+  line-height: 88rpx !important;
+  font-size: 30rpx !important;
+  font-weight: 600 !important;
+  box-shadow: 0 8rpx 20rpx rgba(255,107,157,0.3) !important;
+}
+

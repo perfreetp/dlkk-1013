@@ -13,7 +13,9 @@ export default defineAppConfig({
     'pages/album-detail/index',
     'pages/anniversary-edit/index',
     'pages/wish-edit/index',
-    'pages/letter-write/index'
+    'pages/letter-write/index',
+    'pages/activity/index',
+    'pages/time-capsule/index'
   ],
   window: {
     backgroundTextStyle: 'light',

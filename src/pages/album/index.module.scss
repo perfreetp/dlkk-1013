@@ -184,3 +184,52 @@
   font-size: $font-size-sm;
   color: $color-text-tertiary;
 }
+
+.groupCardEmpty {
+  border: 4rpx dashed rgba(255, 107, 157, 0.35);
+  background: #FFFBFC;
+}
+
+.groupEmptyCover {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #FFF5F7, #FFE9F0);
+  gap: 8rpx;
+
+  &:active {
+    background: linear-gradient(135deg, #FFE9F0, #FF6B9D);
+  }
+}
+
+.groupEmptyIcon {
+  font-size: 72rpx;
+  color: $color-primary;
+  line-height: 1;
+  font-weight: 300;
+}
+
+.groupEmptyText {
+  font-size: 24rpx;
+  color: $color-primary;
+  font-weight: 500;
+}
+
+.groupQuickBtn {
+  position: absolute;
+  top: 12rpx;
+  right: 12rpx;
+  width: 60rpx;
+  height: 60rpx;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.12);
+  backdrop-filter: blur(10rpx);
+}
+

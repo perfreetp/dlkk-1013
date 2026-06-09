@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, ScrollView, Button } from '@tarojs/components';
+import { View, Text, ScrollView, Button, Image } from '@tarojs/components';
 import Taro, { useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
 import classnames from 'classnames';
@@ -167,10 +167,22 @@ function MailboxPage() {
                     fontSize: '22rpx',
                     fontWeight: 'bold',
                     textAlign: 'center',
-                    lineHeight: '36rpx'
+                    lineHeight: '36rpx',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}
                 >
-                  {badge}
+                  <Text
+                    style={{
+                      color: isActive ? '#FF6B9D' : '#fff',
+                      fontSize: '22rpx',
+                      fontWeight: 'bold',
+                      lineHeight: '36rpx'
+                    }}
+                  >
+                    {badge > 99 ? '99+' : badge}
+                  </Text>
                 </View>
               )}
             </View>
@@ -186,7 +198,11 @@ function MailboxPage() {
           >
             {tab.label}
             {tab.showBadge && unreadCount > 0 && filterType !== tab.key && (
-              <View className={styles.unreadBadge}>{unreadCount}</View>
+              <View className={styles.unreadBadge}>
+                <Text style={{ color: '#fff', fontSize: '20rpx', lineHeight: '32rpx' }}>
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </Text>
+              </View>
             )}
           </Text>
         ))}
