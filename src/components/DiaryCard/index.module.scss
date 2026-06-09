@@ -1,0 +1,110 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.99);
+    box-shadow: $shadow-card-hover;
+  }
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  height: 320rpx;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+}
+
+.imageCount {
+  position: absolute;
+  right: $spacing-md;
+  bottom: $spacing-md;
+  background: rgba(0, 0, 0, 0.5);
+  color: $color-text-white;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+}
+
+.content {
+  padding: $spacing-md $spacing-lg $spacing-lg;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.title {
+  flex: 1;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+}
+
+.privateBadge {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+}
+
+.excerpt {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+  margin-bottom: $spacing-md;
+  @include text-ellipsis-multi(3);
+}
+
+.footer {
+  margin-bottom: $spacing-sm;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.tag {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  background: $color-bg-tag;
+  padding: 6rpx 16rpx;
+  border-radius: $radius-sm;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: $spacing-md;
+  border-top: 2rpx solid $color-divider;
+}
+
+.author {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.time {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}

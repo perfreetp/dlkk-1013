@@ -1,0 +1,186 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  padding: $page-padding;
+  padding-bottom: 140rpx;
+  box-sizing: border-box;
+}
+
+.tabs {
+  display: flex;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: 8rpx;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.tabItem {
+  flex: 1;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+
+  &.active {
+    background: $color-primary-gradient;
+    color: $color-text-white;
+    box-shadow: 0 4rpx 12rpx rgba(255, 107, 157, 0.3);
+  }
+}
+
+.memoryCard {
+  background: linear-gradient(135deg, #FFE0EC 0%, #F3E5F5 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -30rpx;
+    right: -30rpx;
+    width: 100rpx;
+    height: 100rpx;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: $radius-round;
+  }
+}
+
+.memoryLabel {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: $spacing-sm;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.memoryDate {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+}
+
+.memoryTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+}
+
+.memoryDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+}
+
+.memoryPhotos {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.memoryPhoto {
+  flex: 1;
+  height: 160rpx;
+  border-radius: $radius-md;
+  overflow: hidden;
+}
+
+.groupGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $spacing-md;
+}
+
+.groupCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.groupCover {
+  width: 100%;
+  height: 240rpx;
+  position: relative;
+}
+
+.groupCoverImg {
+  width: 100%;
+  height: 100%;
+}
+
+.groupCount {
+  position: absolute;
+  bottom: $spacing-sm;
+  right: $spacing-sm;
+  background: rgba(0, 0, 0, 0.5);
+  color: $color-text-white;
+  padding: 4rpx 16rpx;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+}
+
+.groupInfo {
+  padding: $spacing-md;
+}
+
+.groupName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 6rpx;
+  @include text-ellipsis;
+}
+
+.groupDate {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.timelineSection {
+  margin-bottom: $spacing-lg;
+}
+
+.timelineDate {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  padding-left: $spacing-sm;
+  border-left: 6rpx solid $color-primary;
+}
+
+.timelineGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-sm;
+}
+
+.favoritesHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.favoritesCount {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}

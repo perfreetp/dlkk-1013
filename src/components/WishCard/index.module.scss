@@ -1,0 +1,132 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.titleWrap {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex: 1;
+  min-width: 0;
+}
+
+.emoji {
+  font-size: 36rpx;
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+}
+
+.statusTag {
+  padding: 6rpx 20rpx;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  flex-shrink: 0;
+}
+
+.description {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+  margin-bottom: $spacing-md;
+  @include text-ellipsis-multi(2);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.priority {
+  display: flex;
+  align-items: center;
+}
+
+.priorityText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.deadline {
+  font-size: $font-size-xs;
+  color: $color-warning;
+}
+
+.claimer {
+  font-size: $font-size-sm;
+  color: $color-info;
+  padding: $spacing-sm 0;
+  border-top: 2rpx solid $color-divider;
+  margin-top: $spacing-sm;
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 2rpx solid $color-divider;
+}
+
+.actionBtn {
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.96);
+    opacity: 0.9;
+  }
+}
+
+.primaryBtn {
+  background: $color-primary-gradient;
+}
+
+.successBtn {
+  background: linear-gradient(135deg, #4CAF50 0%, #8BC34A 100%);
+}
+
+.btnText {
+  color: $color-text-white;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+}
+
+.completedAt {
+  font-size: $font-size-sm;
+  color: $color-success;
+  padding-top: $spacing-md;
+  margin-top: $spacing-md;
+  border-top: 2rpx solid $color-divider;
+}

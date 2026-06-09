@@ -1,0 +1,80 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.1) 0%, rgba(156, 39, 176, 0.08) 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  border: 2rpx solid $color-border;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: $shadow-card-hover;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.emoji {
+  font-size: 56rpx;
+}
+
+.titleWrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.date {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.daysWrap {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+  padding: $spacing-sm 0;
+}
+
+.days {
+  font-size: 80rpx;
+  font-weight: $font-weight-bold;
+  background: $color-primary-gradient;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+
+.unit {
+  font-size: $font-size-lg;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.blessing {
+  margin-top: $spacing-sm;
+  padding-top: $spacing-md;
+  border-top: 2rpx dashed $color-border;
+}
+
+.blessingText {
+  font-size: $font-size-sm;
+  color: $color-secondary;
+  line-height: $line-height-loose;
+  font-style: italic;
+}

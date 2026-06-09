@@ -1,0 +1,152 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  padding: $page-padding;
+  padding-bottom: 120rpx;
+  box-sizing: border-box;
+}
+
+.diaryCard {
+  background: $color-bg-card;
+  border-radius: $radius-xl;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+}
+
+.diaryImages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+}
+
+.diaryImage {
+  width: 100%;
+  height: 400rpx;
+}
+
+.diaryContent {
+  padding: $spacing-lg;
+}
+
+.diaryTitle {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  line-height: 1.4;
+}
+
+.diaryMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+  padding-bottom: $spacing-md;
+  border-bottom: 2rpx solid $color-divider;
+}
+
+.authorAvatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: $radius-round;
+}
+
+.authorInfo {
+  flex: 1;
+}
+
+.authorName {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.diaryTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.privateBadge {
+  padding: 8rpx 20rpx;
+  background: rgba(244, 67, 54, 0.1);
+  color: $color-error;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.diaryText {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: 2;
+  margin-bottom: $spacing-lg;
+}
+
+.tagsWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  padding: $spacing-md 0;
+  border-top: 2rpx solid $color-divider;
+}
+
+.tagItem {
+  padding: 10rpx 24rpx;
+  background: $color-bg-tag;
+  color: $color-primary;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+}
+
+.coEditorNote {
+  margin-top: $spacing-md;
+  padding: $spacing-md;
+  background: rgba(76, 175, 80, 0.05);
+  border-radius: $radius-md;
+  font-size: $font-size-xs;
+  color: $color-success;
+  border: 2rpx solid rgba(76, 175, 80, 0.2);
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: $spacing-md;
+}
+
+.editBtn {
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, #9C27B0 0%, #CE93D8 100%);
+  color: $color-text-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  border: none;
+}
+
+.deleteBtn {
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, #F44336 0%, #E91E63 100%);
+  color: $color-text-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  border: none;
+}

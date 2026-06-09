@@ -1,0 +1,222 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  padding-bottom: 80rpx;
+  box-sizing: border-box;
+}
+
+.pagePadding {
+  padding: $page-padding;
+}
+
+.profileCard {
+  background: $color-primary-gradient;
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-md;
+  box-shadow: 0 8rpx 24rpx rgba(255, 107, 157, 0.3);
+}
+
+.profileRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-lg;
+}
+
+.userInfo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.avatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: $radius-round;
+  border: 4rpx solid rgba(255, 255, 255, 0.5);
+}
+
+.infoText {
+  display: flex;
+  flex-direction: column;
+}
+
+.userName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+  margin-bottom: 4rpx;
+}
+
+.userLabel {
+  font-size: $font-size-xs;
+  color: $color-text-white;
+  opacity: 0.8;
+}
+
+.heartIcon {
+  font-size: 44rpx;
+  padding: 0 $spacing-md;
+}
+
+.editBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  padding: 12rpx 28rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-button;
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  align-self: center;
+}
+
+.storyText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  opacity: 0.9;
+  line-height: $line-height-loose;
+  font-style: italic;
+  padding-top: $spacing-md;
+  border-top: 2rpx solid rgba(255, 255, 255, 0.2);
+}
+
+.sectionTitle {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  padding: $spacing-md $spacing-lg $spacing-sm;
+  font-weight: $font-weight-medium;
+}
+
+.menuGroup {
+  background: $color-bg-card;
+  margin: 0 $page-padding;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  transition: background $transition-fast;
+
+  &:active {
+    background: $color-bg-hover;
+  }
+
+  &:not(:last-child) {
+    border-bottom: 2rpx solid $color-divider;
+  }
+}
+
+.menuIcon {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  margin-right: $spacing-md;
+  border-radius: $radius-md;
+  background: $color-bg-tag;
+}
+
+.menuContent {
+  flex: 1;
+}
+
+.menuTitle {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.menuDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 4rpx;
+}
+
+.menuArrow {
+  font-size: 32rpx;
+  color: $color-text-tertiary;
+  margin-left: $spacing-sm;
+}
+
+.menuValue {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.switchWrap {
+  width: 96rpx;
+  height: 52rpx;
+  border-radius: $radius-round;
+  background: $color-border;
+  position: relative;
+  transition: background $transition-base;
+
+  &.active {
+    background: $color-primary;
+  }
+}
+
+.switchDot {
+  position: absolute;
+  top: 4rpx;
+  left: 4rpx;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: $radius-round;
+  background: $color-text-white;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.15);
+  transition: left $transition-base;
+
+  .active & {
+    left: 48rpx;
+  }
+}
+
+.dangerZone {
+  margin-top: $spacing-xl;
+}
+
+.dangerBtn {
+  width: calc(100% - #{$page-padding} * 2);
+  margin: 0 $page-padding $spacing-md;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  border: none;
+
+  &.primary {
+    background: linear-gradient(135deg, #FF9800 0%, #FFC107 100%);
+    color: $color-text-white;
+  }
+
+  &.danger {
+    background: linear-gradient(135deg, #F44336 0%, #E91E63 100%);
+    color: $color-text-white;
+  }
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.versionInfo {
+  text-align: center;
+  padding: $spacing-xl;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}

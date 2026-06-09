@@ -1,0 +1,234 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  padding: $page-padding;
+  padding-bottom: 160rpx;
+  box-sizing: border-box;
+}
+
+.inputCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+}
+
+.titleInput {
+  width: 100%;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  padding: $spacing-sm 0;
+  border: none;
+  outline: none;
+  margin-bottom: $spacing-md;
+}
+
+.contentInput {
+  width: 100%;
+  min-height: 500rpx;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: $line-height-loose;
+  border: none;
+  outline: none;
+  resize: none;
+}
+
+.sectionLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.tagsCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+}
+
+.tagsWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.tagItem {
+  padding: 12rpx 28rpx;
+  border-radius: $radius-button;
+  background: $color-bg-tag;
+  font-size: $font-size-sm;
+  color: $color-primary;
+  transition: all $transition-base;
+
+  &.active {
+    background: $color-primary-gradient;
+    color: $color-text-white;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.customTagInput {
+  min-width: 200rpx;
+  padding: 12rpx 24rpx;
+  border: 2rpx dashed $color-border;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  outline: none;
+}
+
+.privacyCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+}
+
+.privacyOption {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-sm;
+  border: 2rpx solid transparent;
+  transition: all $transition-base;
+
+  &.active {
+    border-color: $color-primary;
+    background: rgba(255, 107, 157, 0.05);
+  }
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.privacyIcon {
+  font-size: 40rpx;
+  margin-right: $spacing-md;
+}
+
+.privacyInfo {
+  flex: 1;
+}
+
+.privacyTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.privacyDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.checkbox {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: $radius-round;
+  border: 3rpx solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .active & {
+    background: $color-primary-gradient;
+    border-color: transparent;
+  }
+}
+
+.checkmark {
+  font-size: 24rpx;
+  color: $color-text-white;
+  font-weight: bold;
+}
+
+.coEditorCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+}
+
+.coEditorItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm 0;
+}
+
+.coEditorUser {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.coEditorAvatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-round;
+}
+
+.coEditorName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  display: flex;
+  gap: $spacing-md;
+}
+
+.cancelBtn {
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  border: none;
+}
+
+.saveBtn {
+  flex: 2;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  background: $color-primary-gradient;
+  color: $color-text-white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  border: none;
+  box-shadow: 0 4rpx 16rpx rgba(255, 107, 157, 0.3);
+
+  &:active {
+    transform: scale(0.98);
+  }
+}

@@ -1,0 +1,104 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+  transition: all $transition-base;
+  border: 2rpx solid transparent;
+
+  &:active {
+    transform: scale(0.99);
+  }
+
+  &.unread {
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.05) 0%, $color-bg-card 100%);
+    border-color: rgba(255, 107, 157, 0.2);
+  }
+
+  &.scheduled {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, $color-bg-card 100%);
+    border-color: rgba(255, 193, 7, 0.2);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.iconWrap {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: $radius-round;
+  background: $color-bg-tag;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.icon {
+  font-size: 40rpx;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: 6rpx;
+}
+
+.title {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+  flex: 1;
+}
+
+.unreadDot {
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: $radius-round;
+  background: $color-primary;
+  flex-shrink: 0;
+}
+
+.from {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.timeWrap {
+  flex-shrink: 0;
+}
+
+.time {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.preview {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+  @include text-ellipsis-multi(2);
+}
+
+.scheduleTip {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 2rpx dashed $color-border;
+  font-size: $font-size-xs;
+  color: $color-warning;
+}

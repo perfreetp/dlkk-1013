@@ -1,0 +1,220 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  padding: $page-padding;
+  padding-bottom: 160rpx;
+  box-sizing: border-box;
+}
+
+.headerCard {
+  background: $color-primary-gradient;
+  border-radius: $radius-xl;
+  padding: $spacing-xl;
+  margin-bottom: $spacing-lg;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8rpx 32rpx rgba(255, 107, 157, 0.3);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -80rpx;
+    right: -80rpx;
+    width: 240rpx;
+    height: 240rpx;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: $radius-round;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -60rpx;
+    left: -60rpx;
+    width: 180rpx;
+    height: 180rpx;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: $radius-round;
+  }
+}
+
+.headerTitle {
+  color: $color-text-white;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $spacing-xs;
+  position: relative;
+  z-index: 1;
+}
+
+.headerSubtitle {
+  color: $color-text-white;
+  font-size: $font-size-sm;
+  opacity: 0.9;
+  margin-bottom: $spacing-lg;
+  position: relative;
+  z-index: 1;
+}
+
+.nextBigDay {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10rpx);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  position: relative;
+  z-index: 1;
+}
+
+.nextBigDayLabel {
+  color: $color-text-white;
+  font-size: $font-size-xs;
+  opacity: 0.85;
+  margin-bottom: $spacing-sm;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.nextBigDayContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.nextBigDayTitle {
+  color: $color-text-white;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  margin-bottom: 4rpx;
+}
+
+.nextBigDayDate {
+  color: $color-text-white;
+  font-size: $font-size-xs;
+  opacity: 0.8;
+}
+
+.nextBigDayDays {
+  display: flex;
+  align-items: baseline;
+  gap: 8rpx;
+}
+
+.nextBigDayNumber {
+  font-size: 72rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  line-height: 1;
+  text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
+}
+
+.nextBigDayUnit {
+  font-size: $font-size-md;
+  color: $color-text-white;
+  opacity: 0.9;
+}
+
+.tabs {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.tabItem {
+  flex: 1;
+  padding: $spacing-md;
+  border-radius: $radius-lg;
+  background: $color-bg-card;
+  text-align: center;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &.active {
+    background: $color-primary-gradient;
+    color: $color-text-white;
+    box-shadow: 0 4rpx 16rpx rgba(255, 107, 157, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.blessingCard {
+  background: linear-gradient(135deg, #FFF8E1 0%, #FFF3E0 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-lg;
+  border: 2rpx solid rgba(255, 193, 7, 0.2);
+  position: relative;
+}
+
+.blessingIcon {
+  font-size: 40rpx;
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+}
+
+.blessingLabel {
+  font-size: $font-size-xs;
+  color: $color-accent;
+  font-weight: $font-weight-medium;
+  margin-bottom: $spacing-sm;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.blessingText {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  line-height: $line-height-loose;
+  font-style: italic;
+}
+
+.blessingRefresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 6rpx;
+  margin-top: $spacing-md;
+  padding: 8rpx 20rpx;
+  background: rgba(255, 193, 7, 0.2);
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  color: $color-warning;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.addBtn {
+  position: fixed;
+  right: $page-padding;
+  bottom: 120rpx;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: $radius-round;
+  background: $color-primary-gradient;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(255, 107, 157, 0.4);
+  z-index: 100;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+.addBtnIcon {
+  font-size: 56rpx;
+  color: $color-text-white;
+}

@@ -1,0 +1,130 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  padding: $page-padding;
+  padding-bottom: 160rpx;
+  box-sizing: border-box;
+}
+
+.tabs {
+  display: flex;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: 8rpx;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+}
+
+.tabItem {
+  flex: 1;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  transition: all $transition-base;
+
+  &.active {
+    background: $color-primary-gradient;
+    color: $color-text-white;
+    box-shadow: 0 4rpx 12rpx rgba(255, 107, 157, 0.3);
+  }
+}
+
+.statsRow {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.statCard {
+  flex: 1;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+  text-align: center;
+}
+
+.statNumber {
+  font-size: 40rpx;
+  font-weight: $font-weight-bold;
+  line-height: 1;
+  margin-bottom: 8rpx;
+
+  &.pending { color: $color-warning; }
+  &.claimed { color: $color-info; }
+  &.completed { color: $color-success; }
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.addBtn {
+  position: fixed;
+  right: $page-padding;
+  bottom: 40rpx;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: $radius-round;
+  background: $color-primary-gradient;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(255, 107, 157, 0.4);
+  z-index: 100;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+.addBtnIcon {
+  font-size: 56rpx;
+  color: $color-text-white;
+}
+
+.completionRate {
+  background: linear-gradient(135deg, #E8F5E9 0%, #FFF9C4 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  border: 2rpx solid rgba(76, 175, 80, 0.2);
+}
+
+.completionTitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.completionBar {
+  height: 16rpx;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: $radius-round;
+  overflow: hidden;
+  margin-bottom: $spacing-sm;
+}
+
+.completionProgress {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 100%);
+  border-radius: $radius-round;
+  transition: width 0.5s ease;
+}
+
+.completionText {
+  font-size: $font-size-xs;
+  color: $color-success;
+  font-weight: $font-weight-medium;
+}

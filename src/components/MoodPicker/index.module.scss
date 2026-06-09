@@ -1,0 +1,52 @@
+@use '@/styles/variables.scss' as *;
+
+.picker {
+  display: flex;
+  justify-content: space-between;
+  gap: $spacing-sm;
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-sm;
+  border-radius: $radius-lg;
+  flex: 1;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &.active {
+    border-radius: $radius-lg;
+  }
+}
+
+.emoji {
+  margin-bottom: $spacing-xs;
+}
+
+.emoji-sm {
+  font-size: 40rpx;
+}
+
+.emoji-md {
+  font-size: 56rpx;
+}
+
+.emoji-lg {
+  font-size: 72rpx;
+}
+
+.label {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.size-sm {
+  .option {
+    padding: $spacing-xs;
+  }
+}

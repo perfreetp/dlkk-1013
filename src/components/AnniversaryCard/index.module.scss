@@ -1,0 +1,93 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-md;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.compactCard {
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.08) 0%, rgba(156, 39, 176, 0.05) 100%);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  border: 2rpx solid $color-border;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.emoji {
+  font-size: 56rpx;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  display: block;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: 6rpx;
+  @include text-ellipsis;
+}
+
+.date {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.repeat {
+  color: $color-primary;
+}
+
+.daysWrap {
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+}
+
+.days {
+  font-size: 48rpx;
+  font-weight: $font-weight-bold;
+  background: $color-primary-gradient;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
+
+.unit {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.blessing {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 2rpx dashed $color-border;
+}
+
+.blessingText {
+  font-size: $font-size-sm;
+  color: $color-secondary;
+  line-height: $line-height-loose;
+  font-style: italic;
+}
